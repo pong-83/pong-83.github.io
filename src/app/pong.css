@@ -98,20 +98,43 @@ html body.pg {
 
 /* 불 끄는 줄: 끝에 미니 퐁이 매달려 있고, 다크 모드에선 퐁이 잠들어요 */
 .pg-hdr-r { display: flex; align-items: center; gap: 20px; flex: none; }
-.pg-cord { position: relative; width: 34px; height: 32px; margin: -6px 0; padding: 0; border: 0; background: none; cursor: pointer; flex: none; transform-origin: 50% -140px; }
-.pg-cord::before { content: ''; position: absolute; left: 16px; bottom: 27px; width: 1px; height: 140px; background: linear-gradient(transparent, var(--pg-ink) 70%); opacity: .45; }
-.pg-cord-pong { position: absolute; inset: 0; background: var(--awake) center / contain no-repeat; image-rendering: pixelated; }
-html.dark .pg-cord-pong { background-image: var(--asleep); filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 .5px #fff); }
+.pg-cord { position: relative; width: 32px; height: 32px; margin: -6px 0; padding: 0; border: 0; background: none; cursor: grab; flex: none; touch-action: none; display: inline-flex; align-items: center; justify-content: center; transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
+.pg-cord:active { cursor: grabbing; }
+.pg-cord::before { content: ''; position: absolute; left: 15.25px; bottom: 24px; width: 1.5px; height: 160px; background: linear-gradient(transparent, var(--pg-ink) 75%); opacity: .55; }
+.pg-cord-star { position: relative; }
+.pg-cord-star polygon { fill: var(--pg-accent); stroke: var(--pg-ink); stroke-width: 5; transition: fill .3s ease; }
 .pg-cord.is-pulling { animation: pg-cord-pull .52s cubic-bezier(.3,1.5,.5,1); }
-@keyframes pg-cord-pull { 0% { transform: none; } 35% { transform: translateY(14px) scaleY(1.04); } 60% { transform: translateY(-4px); } 100% { transform: none; } }
-@media (hover: hover) { .pg-cord:hover:not(.is-pulling) { animation: pg-cord-swing 1.2s ease-in-out infinite; } }
-@keyframes pg-cord-swing { 0%, 100% { transform: rotate(0deg); } 25% { transform: rotate(2.4deg); } 75% { transform: rotate(-2.4deg); } }
-.pg-zzz { position: absolute; left: 25px; bottom: 22px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
-html.dark .pg-zzz { display: block; }
-.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 9px; opacity: 0; animation: pg-zzz 3s ease-out infinite; }
-.pg-zzz b:nth-child(2) { font-size: 11px; animation-delay: 1s; }
-.pg-zzz b:nth-child(3) { font-size: 13px; animation-delay: 2s; }
-@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(4px, -20px); } }
+@keyframes pg-cord-pull { 0% { transform: none; } 35% { transform: translateY(30px); } 62% { transform: translateY(-5px); } 100% { transform: none; } }
+/* 마우스를 올리면 살짝 내려와서 당길 수 있다는 걸 알려줘요 */
+@media (hover: hover) { .pg-cord:hover:not(.is-pulling) { animation: pg-cord-hint 1.4s ease-in-out infinite; } }
+@keyframes pg-cord-hint { 0%, 100% { transform: none; } 40% { transform: translateY(6px); } }
+/* 불을 끄면 퐁이 아래에서 올라와 잠들고, 켜면 깨서 폴짝 뛰어요 */
+.pg-nap { position: fixed; left: 50%; bottom: 0; z-index: 90; width: 166px; height: 154px; margin-left: -83px; pointer-events: none; }
+.pg-nap-pong { position: absolute; inset: 0; animation: pg-nap-rise 3.4s cubic-bezier(.3,1.3,.5,1) both; }
+.pg-nap-pong i { position: absolute; inset: 0; background: center / contain no-repeat; image-rendering: pixelated; }
+.pg-nap-pong .a { background-image: var(--awake); }
+.pg-nap-pong .s { background-image: var(--asleep); opacity: 0; }
+html.dark .pg-nap-pong i { filter: drop-shadow(2px 0 0 #ececea) drop-shadow(-2px 0 0 #ececea) drop-shadow(0 2px 0 #ececea) drop-shadow(0 -2px 0 #ececea); }
+@keyframes pg-nap-rise { 0% { transform: translateY(105%); } 14%, 82% { transform: translateY(10%); } 100% { transform: translateY(105%); } }
+.pg-nap.is-sleep .a { animation: pg-nap-out 3.4s steps(1) both; }
+.pg-nap.is-sleep .s { animation: pg-nap-in 3.4s steps(1) both; }
+.pg-nap.is-sleep i { transform-origin: 50% 90%; }
+.pg-nap.is-sleep .s { animation: pg-nap-in 3.4s steps(1) both, pg-nap-nod 3.4s ease-in-out both; }
+@keyframes pg-nap-out { 0% { opacity: 1; } 32% { opacity: 0; } }
+@keyframes pg-nap-in { 0% { opacity: 0; } 32% { opacity: 1; } }
+@keyframes pg-nap-nod { 0%, 32% { transform: none; } 44%, 76% { transform: rotate(-6deg) translateY(2px); } 100% { transform: rotate(-6deg) translateY(2px); } }
+.pg-nap.is-wake .a { opacity: 0; animation: pg-nap-in 3.4s steps(1) both; }
+.pg-nap.is-wake .s { animation: pg-nap-out 3.4s steps(1) both; }
+.pg-nap.is-wake .pg-nap-pong i { animation-name: pg-nap-in, pg-nap-hop; animation-duration: 3.4s; animation-fill-mode: both; animation-timing-function: steps(1), ease-out; }
+.pg-nap.is-wake .pg-nap-pong .s { animation-name: pg-nap-out, pg-nap-hop; }
+@keyframes pg-nap-hop { 0%, 32% { transform: none; } 38% { transform: scale(1.08, .9); } 46% { transform: translateY(-34px) scale(.96, 1.06); } 56% { transform: none; } 60% { transform: scale(1.05, .94); } 64%, 100% { transform: none; } }
+.pg-nap .pg-zzz { position: absolute; left: 128px; top: 26px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
+.pg-nap.is-sleep .pg-zzz { display: block; animation: pg-nap-zzz 3.4s linear both; }
+@keyframes pg-nap-zzz { 0%, 34% { opacity: 0; } 40%, 76% { opacity: 1; } 84%, 100% { opacity: 0; } }
+.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 16px; opacity: 0; animation: pg-zzz 1.5s ease-out infinite; }
+.pg-zzz b:nth-child(2) { font-size: 20px; animation-delay: .5s; }
+.pg-zzz b:nth-child(3) { font-size: 24px; animation-delay: 1s; }
+@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(14px, -34px); } }
 /* 다크 모드 손전등: 마우스 주변만 밝게 */
 .pg-torch { position: fixed; inset: 0; z-index: 55; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle 280px at var(--x, 50%) var(--y, 50%), rgba(255,244,214,.06) 0, transparent 45%, rgba(0,0,0,.24) 100%); }
 .pg-torch.on { opacity: 1; }
@@ -119,7 +142,7 @@ html.dark .pg-zzz { display: block; }
 :root.pg-vt::view-transition-old(root), :root.pg-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 html.dark .pg-egg-run::before { filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
 html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
-@media (prefers-reduced-motion: reduce) { .pg-cord, .pg-cord:hover, .pg-zzz b { animation: none !important; } .pg-zzz b { opacity: .8; } .pg-zzz b:nth-child(2) { transform: translate(2px, -10px); } .pg-zzz b:nth-child(3) { transform: translate(4px, -20px); } }
+@media (prefers-reduced-motion: reduce) { .pg-cord, .pg-cord:hover { animation: none !important; } .pg-nap { display: none; } }
 
 /* 홈: 프로필 */
 .pg-hero { display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; padding-top: 72px; padding-bottom: 64px; }
@@ -424,9 +447,6 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
   .pg-nav { gap: 13px; }
   .pg-hdr-r { gap: 8px; }
   .pg-view .vm-s { display: none; }
-  .pg-cord { width: 30px; height: 28px; }
-  .pg-cord::before { left: 14px; bottom: 23px; }
-  .pg-zzz { left: 22px; bottom: 19px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg *, .pg *::before, .pg *::after { transition: none !important; animation: none !important; }
