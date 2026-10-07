@@ -20,6 +20,16 @@ export function useTheme() {
   return context
 }
 
+function readStoredTheme(storageKey: string): Theme | null {
+  if (typeof window === 'undefined') return null
+  try {
+    const stored = window.localStorage.getItem(storageKey)
+    return stored === 'light' || stored === 'dark' || stored === 'system' ? stored : null
+  } catch {
+    return null
+  }
+}
+
 interface ThemeProviderProps {
   children: React.ReactNode
   defaultTheme?: Theme
@@ -31,16 +41,9 @@ export function ThemeProvider({
   defaultTheme = 'system',
   storageKey = 'notion-blog-theme',
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(defaultTheme)
+  // 저장된 테마를 처음부터 읽어서, 기본값으로 잠깐 바뀌었다 돌아오는 깜빡임을 막아요
+  const [theme, setTheme] = useState<Theme>(() => readStoredTheme(storageKey) || defaultTheme)
   const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light')
-
-  useEffect(() => {
-    // 로컬 스토리지에서 테마 읽기
-    const storedTheme = localStorage.getItem(storageKey) as Theme
-    if (storedTheme) {
-      setTheme(storedTheme)
-    }
-  }, [storageKey])
 
   useEffect(() => {
     const root = window.document.documentElement
@@ -76,7 +79,11 @@ export function ThemeProvider({
 
   const handleSetTheme = (newTheme: Theme) => {
     setTheme(newTheme)
-    localStorage.setItem(storageKey, newTheme)
+    try {
+      localStorage.setItem(storageKey, newTheme)
+    } catch {
+      // 저장이 막힌 브라우저에서는 이번 방문 동안만 유지
+    }
   }
 
   return (

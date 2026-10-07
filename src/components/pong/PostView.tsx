@@ -266,7 +266,7 @@ export function PostView({
               <span style={{ fontSize: 12, fontWeight: 600 }}>다 읽었어요.</span>
             )
           ) : (
-            <span className="rm" style={{ fontSize: 12, color: '#5C5C5C' }}>
+            <span className="rm" style={{ fontSize: 12, color: 'var(--pg-sub)' }}>
               {pct === 0 ? '스크롤하면 읽은 만큼 채워져요' : `남은 시간 약 ${remain}분`}
             </span>
           )}

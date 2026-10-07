@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { ABOUT_EVENT, PALETTES, PALETTE_STORAGE_KEY as STORAGE_KEY, type PaletteId } from '@/config/pong'
 import { Star } from './Star'
+import { ThemeCord } from './ThemeCord'
 
 const TAPS_FOR_EGG = 5 // 별 로고를 2초 안에 5번 연타하면 이스터에그
 const TAP_WINDOW_MS = 2000
@@ -114,24 +115,27 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
           ABOUT
         </Link>
       </nav>
+      <div className="pg-hdr-r">
       {isHome ? (
         <button type="button" className="pg-view" onClick={openRandom}>
           <span className="va">{label}</span>
           <span className="vb">Feeling lucky? Open a random post.</span>
-          <span className="vm">{name}&apos;s page</span>
+          <span className="vm">{name}<span className="vm-s">&apos;s page</span></span>
         </button>
       ) : (
         <Link href="/" className="pg-view">
           <span className="va">{label}</span>
           <span className="vb">Would you like to return to the home page?</span>
-          <span className="vm">{name}&apos;s page</span>
+          <span className="vm">{name}<span className="vm-s">&apos;s page</span></span>
         </Link>
       )}
+        <ThemeCord />
+      </div>
     </header>
       {egg && (
         <div className="pg-egg" aria-live="polite">
           {CONFETTI.map((i) => (
-            <Star key={i} size={10 + (i % 4) * 4} className="pg-egg-star" fill="#111111" style={{ '--x': `${(i * 53) % 100}vw`, '--delay': `${(i % 6) * 0.12}s` } as CSSProperties} />
+            <Star key={i} size={10 + (i % 4) * 4} className="pg-egg-star" fill="var(--pg-ink)" style={{ '--x': `${(i * 53) % 100}vw`, '--delay': `${(i % 6) * 0.12}s` } as CSSProperties} />
           ))}
           <span className="pg-egg-run" style={{ '--sprite': `url(${BASE}/images/pong-run.png)` } as CSSProperties} />
           <p className="pg-egg-msg">별 다섯 개 적립! 오늘은 좋은 일이 생길 거예요 ✶</p>
