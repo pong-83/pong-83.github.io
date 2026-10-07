@@ -70,12 +70,21 @@ export function PostView({
       }
       setActive(cur)
     }
+    // 스크롤 한 번에 여러 번 불리지 않게 화면을 그릴 때 한 번만 계산해요
+    let raf = 0
+    const onScrollFrame = () => {
+      if (!raf) raf = requestAnimationFrame(() => {
+        raf = 0
+        onScroll()
+      })
+    }
     onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
+    window.addEventListener('scroll', onScrollFrame, { passive: true })
+    window.addEventListener('resize', onScrollFrame)
     return () => {
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
+      window.removeEventListener('scroll', onScrollFrame)
+      window.removeEventListener('resize', onScrollFrame)
+      cancelAnimationFrame(raf)
     }
   }, [sections])
 

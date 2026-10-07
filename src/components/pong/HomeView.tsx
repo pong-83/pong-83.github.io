@@ -147,6 +147,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const [photoFailed, setPhotoFailed] = useState(false)
   // 사진에 마우스를 올릴 때마다 스티커 모양이 바뀜
   const [sticker, setSticker] = useState(0)
+  const [tapped, setTapped] = useState(false)
+  const nextSticker = () => setSticker((n) => (n + 1) % STICKER_COUNT)
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
 
   // ABOUT: 넓은 화면(사진과 정보가 나란히)에서는 프로필 맨 위, 좁은 화면에서는 이름에 맞춰요
@@ -190,7 +192,15 @@ export function HomeView({ posts, settings }: HomeViewProps) {
     <>
       <section className="pg-wrap pg-hero">
         <div className="pg-hero-l">
-          <div className="pg-photo-btn" onMouseEnter={() => setSticker((n) => (n + 1) % STICKER_COUNT)}>
+          <div
+            className={`pg-photo-btn${tapped ? ' on' : ''}`}
+            onPointerEnter={(e) => e.pointerType === 'mouse' && nextSticker()}
+            onPointerDown={(e) => {
+              if (e.pointerType === 'mouse') return
+              setTapped(true)
+              nextSticker()
+            }}
+          >
             <div className={`pg-photo-frame${hasPhoto ? ' has-photo' : ''}`}>
               {hasPhoto ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -213,7 +223,6 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                 </>
               )}
             </div>
-            {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
             <span className={`pg-hi s${sticker}`} aria-hidden="true">
               {STICKERS[sticker]
                 .replace('{name}', name)
