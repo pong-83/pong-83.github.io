@@ -368,9 +368,12 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 
 /* Feeling lucky 이스터에그: 7번째 누르면 별 캐릭터가 뛰어감 */
 .pg-egg { position: fixed; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; }
-.pg-egg-run { position: absolute; bottom: 12vh; left: 0; width: 144px; height: 135px; background: 0 0 / 1296px 135px no-repeat; image-rendering: pixelated; transform-origin: 50% 100%; animation: pg-egg-hop .8s ease-in-out, pg-egg-dash 2.6s linear .8s both, pg-egg-legs .64s steps(8) .8s infinite; }
+.pg-egg-run { position: absolute; bottom: 12vh; left: 0; width: 144px; height: 135px; animation: pg-egg-dash 2.6s linear .8s both; }
+.pg-egg-run::before { content: ''; position: absolute; inset: 0; z-index: 1; background: var(--sprite) 0 0 / 1296px 135px no-repeat; image-rendering: pixelated; transform-origin: 50% 93%; animation: pg-egg-hop .8s ease-in-out, pg-egg-legs .64s steps(8) .8s infinite; }
+.pg-egg-run::after { content: ''; position: absolute; left: 48px; top: 120px; width: 72px; height: 7px; border-radius: 50%; background: rgba(0,0,0,.13); animation: pg-egg-shadow .8s ease-in-out; }
 /* pong이 그린 2장짜리 달리기 프레임을 넘기면서 화면을 가로질러 달려가요 */
 /* 첫 칸은 깜짝 놀란 얼굴: 제자리에서 폴짝 뛴 뒤 달려 나가요 */
+@keyframes pg-egg-shadow { 14% { transform: scaleX(1.12); } 42%, 58% { transform: scaleX(.55); opacity: .5; } 80% { transform: scaleX(1.15); } }
 @keyframes pg-egg-hop { 14% { transform: scale(1.18,.78); } 42% { transform: translateY(-64px) scale(.88,1.16) rotate(-8deg); } 58% { transform: translateY(-70px) rotate(5deg); } 80% { transform: scale(1.16,.82); } 92% { transform: scale(.96,1.05); } }
 @keyframes pg-egg-dash { from { translate: 6vw 0; } to { translate: 100vw 0; } }
 @keyframes pg-egg-legs { from { background-position: -144px 0; } to { background-position: -1296px 0; } }
@@ -378,8 +381,8 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 @keyframes pg-egg-fall { to { transform: translateY(110vh) rotate(540deg); } }
 .pg-egg-msg { position: absolute; left: 50%; top: 38%; margin: 0; padding: 10px 18px; background: var(--pg-ink); color: #fff; font-size: 15px; font-weight: 600; white-space: nowrap; transform: translateX(-50%) rotate(-3deg); animation: pg-egg-pop 3.6s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes pg-egg-pop { 0% { opacity: 0; transform: translateX(-50%) rotate(-3deg) scale(.6); } 12% { opacity: 1; transform: translateX(-50%) rotate(-3deg) scale(1); } 85% { opacity: 1; } 100% { opacity: 0; } }
-@media (prefers-reduced-motion: reduce) { .pg-egg-run, .pg-egg-star { animation-duration: .01s; }
-  .pg-egg-run { animation-iteration-count: 1; } }
+@media (prefers-reduced-motion: reduce) { .pg-egg-run, .pg-egg-run::before, .pg-egg-run::after, .pg-egg-star { animation-duration: .01s; }
+  .pg-egg-run::before { animation-iteration-count: 1; } }
 
 /* About: 접힌 페이지 (노션 토글 제목) */
 /* 어바웃 본문은 내용 길이와 상관없이 같은 폭으로 (접힌 페이지를 열 때 폭이 바뀌지 않게) */
