@@ -381,6 +381,8 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
   .pg-egg-run { animation-iteration-count: 1; } }
 
 /* About: 접힌 페이지 (노션 토글 제목) */
+/* 어바웃 본문은 내용 길이와 상관없이 같은 폭으로 (접힌 페이지를 열 때 폭이 바뀌지 않게) */
+.pg-post-head > .pg-body { align-self: stretch; }
 .pg-article details.toggle-heading-block { position: relative; margin: 14px 0 !important; background: #fff; border-radius: 6px; padding: 18px 22px; box-shadow: 0 1px 2px rgba(17,17,17,.08), 0 8px 20px rgba(17,17,17,.05); transition: transform .3s cubic-bezier(.2,.7,.2,1), box-shadow .3s ease; }
 .pg-article details.toggle-heading-block:not([open]):hover { transform: translateY(-2px) rotate(-.4deg); box-shadow: 0 2px 4px rgba(17,17,17,.08), 0 14px 28px rgba(17,17,17,.08); }
 .pg-article details.toggle-heading-block::before { content: ''; position: absolute; right: 0; top: 0; width: 28px; height: 28px; background: linear-gradient(225deg, var(--pg-bg, #f6f6f4) 50%, #e4e4e0 50%); border-bottom-left-radius: 4px; transition: width .3s ease, height .3s ease; }
@@ -396,16 +398,3 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 
 
 
-/* 유리 방울 커서 (GlassCursor). 사이트 컬러와 상관없이 같은 푸른 유리예요 */
-html.pg-cursor-on, html.pg-cursor-on * { cursor: none !important; }
-html.pg-cursor-on :is(input, textarea, select, [contenteditable='true']) { cursor: text !important; }
-.pg-glass { position: fixed; left: 0; top: 0; z-index: 2147483647; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; pointer-events: none; opacity: 0;
-  background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(123,140,255,.18));
-  backdrop-filter: blur(3px) saturate(1.4); -webkit-backdrop-filter: blur(3px) saturate(1.4);
-  border: 1.5px solid rgba(255,255,255,.9);
-  box-shadow: 0 0 0 1px rgba(91,110,255,.35), 0 0 14px rgba(91,110,255,.35), inset 0 0 6px rgba(255,255,255,.7);
-  transition: width .25s cubic-bezier(.2,.8,.2,1), height .25s cubic-bezier(.2,.8,.2,1), margin .25s cubic-bezier(.2,.8,.2,1), opacity .2s, scale .15s; }
-.pg-glass.is-in { opacity: 1; }
-.pg-glass.is-big { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
-.pg-glass.is-down { scale: .85; }
-.pg-glass.is-hidden { opacity: 0; }
