@@ -13,6 +13,7 @@
 
 import { cache } from 'react'
 import { createNotionClient } from '@/services/notion/client'
+import { localizeNotionImages } from '@/lib/notion-image-store'
 import type { PostDetail, PostListItem, AboutPage, SiteConfig, SiteSettings } from '@/services/notion/client'
 
 /**
@@ -22,7 +23,7 @@ import type { PostDetail, PostListItem, AboutPage, SiteConfig, SiteSettings } fr
  */
 export const listPublishedPostsMemo = cache(async (): Promise<PostListItem[]> => {
   const notionClient = createNotionClient()
-  return notionClient.listPublishedPosts()
+  return localizeNotionImages(await notionClient.listPublishedPosts())
 })
 
 /**
@@ -35,7 +36,7 @@ export const listPublishedPostsMemo = cache(async (): Promise<PostListItem[]> =>
  */
 export const getPostBySlugMemo = cache(async (slug: string): Promise<PostDetail | null> => {
   const notionClient = createNotionClient()
-  return notionClient.getPostBySlug(slug)
+  return localizeNotionImages(await notionClient.getPostBySlug(slug))
 })
 
 /**
@@ -43,7 +44,7 @@ export const getPostBySlugMemo = cache(async (slug: string): Promise<PostDetail 
  */
 export const getAboutPageMemo = cache(async (): Promise<AboutPage | null> => {
   const notionClient = createNotionClient()
-  return notionClient.getAboutPage()
+  return localizeNotionImages(await notionClient.getAboutPage())
 })
 
 /**
@@ -51,7 +52,7 @@ export const getAboutPageMemo = cache(async (): Promise<AboutPage | null> => {
  */
 export const getSiteConfigMemo = cache(async (): Promise<SiteConfig> => {
   const notionClient = createNotionClient()
-  return notionClient.getSiteConfig()
+  return localizeNotionImages(await notionClient.getSiteConfig())
 })
 
 /**
@@ -59,5 +60,5 @@ export const getSiteConfigMemo = cache(async (): Promise<SiteConfig> => {
  */
 export const getSiteSettingsMemo = cache(async (): Promise<SiteSettings> => {
   const notionClient = createNotionClient()
-  return notionClient.getSiteSettings()
+  return localizeNotionImages(await notionClient.getSiteSettings())
 })
