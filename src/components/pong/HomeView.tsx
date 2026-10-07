@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { flushSync } from 'react-dom'
 import Link from 'next/link'
 import type { PostListItem, SiteSettings } from '@/services/notion/types'
@@ -36,6 +36,8 @@ const FOLDER_COLORS = [
   { front: '#C4C4BF', back: '#A1A19D' },
   { front: '#2B2B2B', back: '#111111' },
 ]
+
+const FIND = '__find__'
 
 const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
 
@@ -143,11 +145,11 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const [filter, setFilter] = useState('all')
   const [hover, setHover] = useState(-1)
   const [query, setQuery] = useState('')
-  const [finding, setFinding] = useState(false)
-  const [hop, setHop] = useState(0)
   const searchRef = useRef<HTMLInputElement>(null)
   const words = searchWords(query)
-  const visible = posts.filter((p) => (filter === 'all' || p.label === filter) && matches(p, words))
+  // 'find' 폴더는 모든 글에서 찾는 검색 폴더예요 (Finder의 스마트 폴더처럼)
+  const finding = filter === FIND
+  const visible = posts.filter((p) => (finding ? matches(p, words) : filter === 'all' || p.label === filter))
 
   // 키보드 / 를 누르면 검색칸으로 가요
   useEffect(() => {
@@ -156,22 +158,22 @@ export function HomeView({ posts, settings }: HomeViewProps) {
       const t = e.target as HTMLElement | null
       if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return
       e.preventDefault()
-      setFinding(true)
+      openFind()
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
-  }, [])
-  useEffect(() => {
-    if (finding) searchRef.current?.focus()
-  }, [finding])
-  // 폰에서 키보드가 바로 뜨도록 누른 그 순간에 검색칸을 그리고 포커스해요
+  })
+  // 폰에서 키보드가 바로 뜨도록 누른 그 순간에 이름칸을 그리고 포커스해요
   const openFind = () => {
-    flushSync(() => setFinding(true))
+    flushSync(() => {
+      setFilter(FIND)
+      setHover(-1)
+    })
     searchRef.current?.focus()
   }
   const closeFind = () => {
     setQuery('')
-    setFinding(false)
+    setFilter('all')
     setHover(-1)
   }
   const cur = (hover >= 0 && visible.includes(posts[hover]) ? posts[hover] : visible[0]) || null
@@ -410,6 +412,48 @@ export function HomeView({ posts, settings }: HomeViewProps) {
               </button>
             )
           })}
+          <div
+            className={`pg-fold pg-fold-find${finding ? ' is-on' : ''}${finding && words.length > 0 ? (visible.length > 0 ? ' hit' : ' miss') : ''}`}
+            onClick={() => !finding && openFind()}
+          >
+            <button type="button" className="pg-fbox" aria-pressed={finding} aria-label="글 찾기" title="글 찾기 ( / )" onClick={(e) => {
+              e.stopPropagation()
+              if (finding) searchRef.current?.focus()
+              else openFind()
+            }}>
+              <span className="tab" />
+              <span className="back" />
+              <span className="sheet" />
+              <span className="front">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                  <circle cx="10.5" cy="10.5" r="6" />
+                  <path d="M15 15 L20 20" />
+                </svg>
+              </span>
+            </button>
+            {finding ? (
+              <label className="pg-flab on pg-find-name" data-v={query || 'Search'}>
+                <input
+                  ref={searchRef}
+                  type="search"
+                  value={query}
+                  size={1}
+                  onChange={(e) => {
+                    setQuery(e.target.value)
+                    setHover(-1)
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Escape') closeFind()
+                  }}
+                  placeholder="Search"
+                  aria-label="찾을 낱말"
+                  enterKeyHint="search"
+                />
+              </label>
+            ) : (
+              <span className="pg-flab">Search</span>
+            )}
+          </div>
           <div className="pg-note" aria-hidden="true">
             <span>open a folder</span>
             <svg width="90" height="54" viewBox="0 0 90 54" fill="none" stroke="#111111" strokeWidth="1.4" strokeLinecap="round">
@@ -421,69 +465,17 @@ export function HomeView({ posts, settings }: HomeViewProps) {
 
         <div className="pg-files">
           <div className="pg-list">
-            {finding ? (
-              <div className={`pg-find${words.length > 0 && visible.length === 0 ? ' miss' : ''}`}>
-                <label className="pg-find-field" data-v={query || '무슨 글 찾아요?'}>
-                  <input
-                    ref={searchRef}
-                    type="search"
-                    value={query}
-                    size={1}
-                    onChange={(e) => {
-                      setQuery(e.target.value)
-                      setHover(-1)
-                      setHop((n) => n + 1)
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Escape') closeFind()
-                    }}
-                    onBlur={() => {
-                      if (!query.trim()) closeFind()
-                    }}
-                    placeholder="무슨 글 찾아요?"
-                    aria-label="글 찾기"
-                    enterKeyHint="search"
-                  />
-                </label>
-                {/* 돋보기가 쓰는 글자 끝을 따라다니며 들여다봐요 */}
-                <span key={hop} className={`pg-loupe${hop ? ' hop' : ''}`} aria-hidden="true">
-                  <svg width="30" height="30" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-                    <circle cx="12" cy="12" r="8" fill="var(--pg-bg)" />
-                    <path d="M8 9.5 a4.5 4.5 0 0 1 4 -2.5" strokeWidth="1.4" />
-                    <path d="M18 18 L26 26" strokeWidth="3" />
-                  </svg>
-                </span>
-                <svg className="pg-find-line" viewBox="0 0 400 8" preserveAspectRatio="none" aria-hidden="true">
-                  <path d="M2 5 C 80 2, 160 7, 240 4 S 360 3, 398 5" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                </svg>
-                <span className="pg-find-n" role="status">
-                  {words.length > 0 ? `${visible.length} items` : ''}
-                </span>
-                <button type="button" className="pg-find-x" onClick={closeFind} aria-label="검색 닫기">
-                  ×
-                </button>
-              </div>
-            ) : (
-              <div className="pg-list-head">
-                <span style={{ flex: '1 1 auto' }}>NAME</span>
-                <span className="pg-kind" style={{ color: 'inherit' }}>KIND</span>
-                <span className="pg-date" style={{ color: 'inherit' }}>DATE</span>
-                <button type="button" className="pg-find-btn" onClick={openFind} aria-label="글 찾기" title="글 찾기 ( / )">
-                  <svg width="18" height="18" viewBox="0 0 30 30" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true">
-                    <circle cx="12" cy="12" r="8" />
-                    <path d="M18 18 L26 26" strokeWidth="3.4" />
-                  </svg>
-                  <span>찾기</span>
-                </button>
-              </div>
-            )}
+            <div className="pg-list-head">
+              <span style={{ flex: '1 1 auto' }}>{finding && words.length > 0 ? `${visible.length} ${visible.length === 1 ? 'RESULT' : 'RESULTS'}` : 'NAME'}</span>
+              <span className="pg-kind" style={{ color: 'inherit' }}>KIND</span>
+              <span className="pg-date" style={{ color: 'inherit' }}>DATE</span>
+            </div>
             {visible.map((p) => {
               const i = posts.indexOf(p)
               return (
                 <Link
                   key={p.slug}
                   href={`/posts/${p.slug}/`}
-                  style={finding ? ({ '--i': Math.min(visible.indexOf(p), 8) } as CSSProperties) : undefined}
                   className={`pg-row${p === cur ? ' is-cur' : ''}`}
                   onMouseEnter={() => setHover(i)}
                   onFocus={() => setHover(i)}
@@ -517,23 +509,16 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <circle cx="39" cy="23" r="1.6" fill="#111111" />
                 </svg>
                 <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>
-                  {words.length > 0
+                  {finding
                     ? `‘${query.trim()}’ 글은 못 찾았어요`
                     : filter === 'all'
                       ? '아직 올린 글이 없어요'
                       : `${filter} 폴더는 아직 비어 있어요`}
                 </span>
                 <span style={{ fontSize: 13, color: 'var(--pg-sub)' }}>0 items · 0 KB</span>
-                {words.length > 0 ? (
-                  <button
-                    type="button"
-                    className="pg-btn"
-                    onClick={() => {
-                      if (filter !== 'all') setFilter('all')
-                      else closeFind()
-                    }}
-                  >
-                    {filter !== 'all' ? 'All 폴더에서 찾기' : '검색 지우기'}
+                {finding ? (
+                  <button type="button" className="pg-btn" onClick={closeFind}>
+                    All 폴더 열기
                   </button>
                 ) : filter !== 'all' && (
                   <button type="button" className="pg-btn" onClick={() => setFilter('all')}>
