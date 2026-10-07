@@ -392,24 +392,25 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 .pg-article details.toggle-heading-block > summary::after { content: '+'; flex: none; width: 22px; height: 22px; border: 1.5px solid var(--pg-ink); border-radius: 50%; display: grid; place-items: center; font-size: 15px; line-height: 1; transition: transform .45s cubic-bezier(.3,1.6,.5,1); }
 .pg-article details.toggle-heading-block[open] > summary::after { transform: rotate(135deg); }
 /* 병풍 종이: 안의 문단, 목록 한 줄 한 줄이 지그재그로 접혀 있다가 차례로 펼쳐져요 */
-.pg-article details.toggle-heading-block > .toggle-content { margin: 0 !important; padding: 0 0 8px; perspective: 800px; }
+.pg-article details.toggle-heading-block > .toggle-content { margin: 0 !important; padding: 0 0 8px; }
 .pg-article details.toggle-heading-block > .toggle-content > :is(ul, ol) { margin: 0 !important; padding: 0 !important; list-style-position: inside; }
-.pg-article details.toggle-heading-block > .toggle-content > :not(ul, ol), .pg-article details.toggle-heading-block > .toggle-content > :is(ul, ol) > li { margin: 0 !important; padding: 10px 22px; transform-origin: top; animation: pg-fold-a .5s cubic-bezier(.3,1.4,.5,1) backwards; }
+/* 병풍 종이: 한 칸씩 높이가 생기면서 꺾인 면이 빛 쪽으로 펴져요 */
+.pg-article details.toggle-heading-block > .toggle-content > :not(ul, ol), .pg-article details.toggle-heading-block > .toggle-content > :is(ul, ol) > li { margin: 0 !important; padding: 10px 22px; overflow: hidden; transform-origin: top; box-shadow: inset 0 1px 0 rgba(0,0,0,.05); animation: pg-fold-a .62s cubic-bezier(.2,.9,.3,1.15) backwards; }
 .pg-article details.toggle-heading-block > .toggle-content > :not(ul, ol):nth-child(even), .pg-article details.toggle-heading-block > .toggle-content > :is(ul, ol) > li:nth-child(even) { background: #fbfbf9; transform-origin: bottom; animation-name: pg-fold-b; }
 .pg-article details.toggle-heading-block > .toggle-content > blockquote { padding: 14px 22px !important; }
-@keyframes pg-fold-a { from { opacity: 0; transform: rotateX(-90deg); } }
-@keyframes pg-fold-b { from { opacity: 0; transform: rotateX(90deg); } }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(2), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(2) { animation-delay: 0.09s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(3), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(3) { animation-delay: 0.18s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(4), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(4) { animation-delay: 0.27s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(5), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(5) { animation-delay: 0.36s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(6), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(6) { animation-delay: 0.45s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(7), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(7) { animation-delay: 0.54s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(8), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(8) { animation-delay: 0.63s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(9), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(9) { animation-delay: 0.72s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(10), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(10) { animation-delay: 0.81s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(11), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(11) { animation-delay: 0.90s; }
-.pg-article details.toggle-heading-block > .toggle-content > :nth-child(12), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(12) { animation-delay: 0.99s; }
+@keyframes pg-fold-a { from { max-height: 0; padding-top: 0; padding-bottom: 0; opacity: .4; transform: perspective(500px) rotateX(-95deg); background: #d4d4ce; } 45% { max-height: 5em; } 70% { background: #f1f1ee; } to { max-height: 20em; } }
+@keyframes pg-fold-b { from { max-height: 0; padding-top: 0; padding-bottom: 0; opacity: .4; transform: perspective(500px) rotateX(95deg); background: #c9c9c2; } 45% { max-height: 5em; } 70% { background: #ecece8; } to { max-height: 20em; } }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(2), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(2) { animation-delay: 0.14s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(3), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(3) { animation-delay: 0.28s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(4), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(4) { animation-delay: 0.42s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(5), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(5) { animation-delay: 0.56s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(6), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(6) { animation-delay: 0.70s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(7), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(7) { animation-delay: 0.84s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(8), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(8) { animation-delay: 0.98s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(9), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(9) { animation-delay: 1.12s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(10), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(10) { animation-delay: 1.26s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(11), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(11) { animation-delay: 1.40s; }
+.pg-article details.toggle-heading-block > .toggle-content > :nth-child(12), .pg-article details.toggle-heading-block > .toggle-content > :is(ul,ol) > li:nth-child(12) { animation-delay: 1.54s; }
 @media (prefers-reduced-motion: reduce) { .pg-article details.toggle-heading-block > .toggle-content > *, .pg-article details.toggle-heading-block > .toggle-content > :is(ul, ol) > li { animation: none; } }
 
 
