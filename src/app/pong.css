@@ -96,43 +96,50 @@ html body.pg {
 .pg-view:active { color: #1f4bff; }
 .pg-view .vm { display: none; }
 
-/* 푸터의 방: 창문의 해를 끌어내리면 달이 뜨고(다크 모드) 옆의 퐁이 잠들어요 */
-/* 오른쪽 아래에는 읽은 분량 창이 떠서, 창문은 왼쪽에 둬요 */
-.pg-room { position: relative; display: flex; align-items: flex-end; gap: 14px; height: 132px; margin-bottom: -1px; }
-.pg-room::before { content: ''; position: absolute; left: 0; bottom: 18px; width: 104px; height: 6px; border-radius: 1px; background: var(--pg-ink); }
-.pg-window { position: relative; margin-left: 7px; width: 90px; height: 100px; margin-bottom: 24px; box-sizing: border-box; border: 1.5px solid var(--pg-ink); border-radius: 3px; overflow: hidden; background: #cfe7ff; transition: background .6s ease; }
-html.dark .pg-window { background: #1b2140; }
-/* 창살은 해와 달 앞에 있어요 */
+/* 푸터의 방: 창문의 해를 옆으로 끌어서 지게 하면 달이 뜨고(다크 모드) 옆의 퐁이 잠들어요 */
+/* 푸터 안 왼쪽 글자 바로 옆에 둬요 (오른쪽 아래에는 읽은 분량 창이 떠요) */
+.pg-room { position: relative; display: flex; align-items: flex-end; gap: 18px; margin-right: auto; padding-top: 30px; }
+.pg-room::before { content: ''; position: absolute; left: 0; bottom: 0; width: 136px; height: 6px; border-radius: 1px; background: var(--pg-ink); }
+/* 창밖은 흑백: 낮엔 흰 하늘에 검은 해, 밤엔 검은 하늘에 흰 달 */
+.pg-window { position: relative; margin-left: 8px; width: 120px; height: 104px; margin-bottom: 6px; box-sizing: border-box; border: 1.5px solid var(--pg-ink); border-radius: 3px; overflow: hidden; background: #ffffff; transition: background .5s ease; touch-action: none; cursor: grab; }
+.pg-window:active { cursor: grabbing; }
+html.dark .pg-window { background: #050505; border-color: #ececea; }
 .pg-window::before, .pg-window::after { content: ''; position: absolute; z-index: 2; background: var(--pg-ink); pointer-events: none; }
 .pg-window::before { left: 50%; top: 0; bottom: 0; width: 1.5px; margin-left: -.75px; }
 .pg-window::after { top: 50%; left: 0; right: 0; height: 1.5px; margin-top: -.75px; }
-.pg-sky i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff6c8; opacity: 0; transition: opacity .6s ease; }
-.pg-sky i:nth-child(1) { left: 12px; top: 14px; }
-.pg-sky i:nth-child(2) { left: 66px; top: 22px; animation-delay: .7s; }
-.pg-sky i:nth-child(3) { left: 20px; top: 62px; animation-delay: 1.3s; }
-html.dark .pg-sky i { opacity: 1; animation: pg-twinkle 2.2s ease-in-out infinite; }
-@keyframes pg-twinkle { 50% { opacity: .25; } }
-.pg-orb { position: absolute; left: 50%; top: 10px; width: 40px; height: 40px; margin-left: -20px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; z-index: 1; }
-.pg-orb:active { cursor: grabbing; }
-.pg-orb::after { content: ''; position: absolute; left: 7px; top: 7px; width: 26px; height: 26px; border-radius: 50%; background: #ffc93c; box-shadow: 0 0 0 5px rgba(255,201,60,.28), 0 0 18px rgba(255,190,40,.6); }
+.pg-sky i { position: absolute; width: 2px; height: 2px; background: #ffffff; opacity: 0; transition: opacity .5s ease; }
+.pg-sky i:nth-child(1) { left: 14px; top: 16px; }
+.pg-sky i:nth-child(2) { left: 92px; top: 20px; animation-delay: .7s; }
+.pg-sky i:nth-child(3) { left: 24px; top: 70px; animation-delay: 1.3s; }
+.pg-sky i:nth-child(4) { left: 78px; top: 64px; animation-delay: .3s; }
+html.dark .pg-sky i { opacity: 1; animation: pg-twinkle 2.2s steps(2) infinite; }
+@keyframes pg-twinkle { 50% { opacity: .2; } }
+/* 해와 달은 자바스크립트가 호를 따라 움직여요 (--ox, --oy) */
+.pg-orb { position: absolute; left: 0; top: 0; width: 44px; height: 44px; margin: -22px 0 0 -22px; padding: 0; border: 0; background: none; cursor: inherit; z-index: 1; transform: translate(var(--ox, 60px), var(--oy, 34px)); }
+.pg-orb::after { content: ''; position: absolute; left: 10px; top: 10px; width: 24px; height: 24px; border-radius: 50%; background: #111111; box-shadow: 0 0 0 4px #ffffff, 0 0 0 5.5px #111111; }
 /* 달은 동그라미 안쪽 그림자로 초승달 모양을 만들어요 */
-html.dark .pg-orb::after { background: transparent; box-shadow: inset -8px -3px 0 0 #f6efc4; transform: rotate(-12deg); }
-.pg-orb.rise { animation: pg-orb-rise .75s cubic-bezier(.2,.9,.3,1.2) both; }
-@keyframes pg-orb-rise { 0% { transform: translateY(96px); } 100% { transform: none; } }
-/* 마우스를 올리면 살짝 내려가서 끌 수 있다는 걸 알려줘요 */
-@media (hover: hover) { .pg-orb:hover:not(.rise) { animation: pg-orb-hint 1.4s ease-in-out infinite; } }
-@keyframes pg-orb-hint { 0%, 100% { transform: none; } 40% { transform: translateY(5px); } }
-.pg-orb:focus-visible { outline: 2px solid var(--pg-ink); outline-offset: -2px; border-radius: 50%; }
-.pg-room-pong { position: relative; width: 64px; height: 59px; margin-bottom: 16px; background: var(--awake) center / contain no-repeat; image-rendering: pixelated; }
+html.dark .pg-orb::after { background: transparent; box-shadow: inset -8px -3px 0 0 #f4f4f0; transform: rotate(-12deg); }
+.pg-orb:focus-visible { outline: 2px solid var(--pg-ink); outline-offset: -4px; border-radius: 50%; }
+/* 처음 들어오면 해가 살짝 흔들려서 끌 수 있다는 걸 알려줘요 */
+@media (hover: hover) { .pg-window:hover .pg-orb::after { animation: pg-orb-hint 1.2s ease-in-out infinite; } }
+@keyframes pg-orb-hint { 0%, 100% { translate: 0 0; } 50% { translate: 4px 1px; } }
+.pg-window.is-dragging .pg-orb::after { animation: none; }
+.pg-room-pong { position: relative; width: 83px; height: 77px; margin-bottom: -2px; background: var(--awake) center / contain no-repeat; image-rendering: pixelated; transform-origin: 50% 100%; cursor: pointer; }
 html.dark .pg-room-pong { background-image: var(--asleep); filter: drop-shadow(1.5px 0 0 #ececea) drop-shadow(-1.5px 0 0 #ececea) drop-shadow(0 1.5px 0 #ececea) drop-shadow(0 -1.5px 0 #ececea); }
-.pg-room-pong.hop { transform-origin: 50% 100%; animation: pg-room-hop .7s ease-out .2s both; }
-@keyframes pg-room-hop { 0% { transform: none; } 20% { transform: scale(1.08, .9); } 45% { transform: translateY(-26px) scale(.95, 1.06); } 72% { transform: none; } 84% { transform: scale(1.05, .94); } 100% { transform: none; } }
-.pg-zzz { position: absolute; left: 164px; bottom: 76px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
+.pg-room-pong.hop { animation: pg-room-hop .7s ease-out both; }
+@keyframes pg-room-hop { 0% { transform: none; } 20% { transform: scale(1.08, .9); } 45% { transform: translateY(-30px) scale(.95, 1.06); } 72% { transform: none; } 84% { transform: scale(1.05, .94); } 100% { transform: none; } }
+.pg-room-pong.stir { animation: pg-room-stir .6s ease-in-out both; }
+@keyframes pg-room-stir { 25% { transform: rotate(-5deg); } 60% { transform: rotate(4deg); } }
+/* 말풍선: 잠들면 zzZ, 깨면 ! */
+.pg-bubble { position: absolute; left: 196px; bottom: 84px; padding: 4px 10px; border: 1.5px solid var(--pg-ink); border-radius: 12px; background: var(--pg-paper); color: var(--pg-ink); font-family: var(--pg-mono); font-size: 15px; font-weight: 700; line-height: 1.2; white-space: nowrap; pointer-events: none; transform-origin: 0 100%; animation: pg-bubble 2.2s cubic-bezier(.3,1.6,.5,1) both; }
+.pg-bubble::after { content: ''; position: absolute; left: 10px; bottom: -6px; width: 8px; height: 8px; border-right: 1.5px solid var(--pg-ink); border-bottom: 1.5px solid var(--pg-ink); background: var(--pg-paper); transform: rotate(45deg); }
+@keyframes pg-bubble { 0% { opacity: 0; transform: scale(.3); } 14% { opacity: 1; transform: scale(1); } 82% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.9) translateY(-6px); } }
+.pg-zzz { position: absolute; left: 186px; bottom: 76px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
 html.dark .pg-zzz { display: block; }
-.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 10px; opacity: 0; animation: pg-zzz 3s ease-out infinite; }
-.pg-zzz b:nth-child(2) { font-size: 13px; animation-delay: 1s; }
-.pg-zzz b:nth-child(3) { font-size: 16px; animation-delay: 2s; }
-@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(10px, -26px); } }
+.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 14px; opacity: 0; animation: pg-zzz 2.7s ease-out infinite; }
+.pg-zzz b:nth-child(2) { font-size: 18px; animation-delay: .9s; }
+.pg-zzz b:nth-child(3) { font-size: 22px; animation-delay: 1.8s; }
+@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: 1; } 100% { opacity: 0; transform: translate(16px, -34px); } }
 /* 다크 모드 손전등: 마우스 주변만 밝게 */
 .pg-torch { position: fixed; inset: 0; z-index: 55; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle 280px at var(--x, 50%) var(--y, 50%), rgba(255,244,214,.06) 0, transparent 45%, rgba(0,0,0,.24) 100%); }
 .pg-torch.on { opacity: 1; }
@@ -436,6 +443,7 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
   .pg-card { min-height: 0; gap: 24px; }
   .pg-dlg { right: 16px; left: 16px; width: auto; }
   .pg-nf .big { font-size: 120px; }
+  .pg-foot-in .pg-room { order: -1; width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg *, .pg *::before, .pg *::after { transition: none !important; animation: none !important; }

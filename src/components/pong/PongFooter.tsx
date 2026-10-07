@@ -24,7 +24,6 @@ export function PongFooter({ name }: { name: string }) {
   if (isHome) {
     return (
       <footer className="pg-wrap pg-foot">
-        <NightWindow />
         <div className="pg-foot-in">
           <button
             type="button"
@@ -46,6 +45,7 @@ export function PongFooter({ name }: { name: string }) {
                 ))}
             </span>
           </button>
+          <NightWindow />
           <span style={{ display: 'flex', gap: 24 }}>
             <span>© {year}</span>
             <a href="#top" className="pg-ul">TOP ↑</a>
@@ -57,12 +57,12 @@ export function PongFooter({ name }: { name: string }) {
 
   return (
     <footer className="pg-wrap pg-foot">
-      <NightWindow />
       <div className="pg-foot-in" style={{ paddingTop: 20, alignItems: 'center' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           {name}
           <Star size={10} /> © {year}
         </span>
+        <NightWindow />
         <span style={{ display: 'flex', gap: 24 }}>
           <Link href="/" className="pg-ul">HOME</Link>
         </span>
