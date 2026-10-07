@@ -5,14 +5,12 @@
 
 import { notFound } from 'next/navigation'
 import { listPublishedPostsMemo, getPostBySlugMemo, getSiteConfigMemo } from '@/lib/request-memo'
-import { PostHeroClient } from '@/components/PostHeroClient'
+import { PostView } from '@/components/pong/PostView'
 import { Comments } from '@/components/Comments'
-import { ImageZoomModal } from '@/components/ImageZoomModal'
 import { KatexRenderer } from '@/components/KatexRenderer'
-import { HeadingAnchorScript } from '@/components/HeadingAnchorScript'
 import CodeHighlight from '@/components/CodeHighlight'
 import { createPostMetadata, createJsonLd, createBreadcrumbJsonLd } from '@/lib/seo'
-import { generateTOCFromNotionBlocks, addIdsToHeadings } from '@/lib/toc'
+import { splitPostIntoSections } from '@/lib/sections'
 import { FALLBACK_POST_SLUGS } from '@/lib/fallback-data'
 import type { Metadata } from 'next'
 
@@ -82,11 +80,19 @@ export default async function PostPage({ params }: PostPageProps) {
       notFound()
     }
 
-    // 목차 생성
-    const toc = generateTOCFromNotionBlocks(post.content)
+    // 제목1·제목2 기준으로 본문을 번호 붙은 섹션으로 나눔
+    const { introHtml, sections } = splitPostIntoSections(post.content, post.html)
 
-    // HTML 렌더링
-    const contentWithIds = addIdsToHeadings(post.html)
+    // 다음에 읽을 글: 이 글보다 먼저 쓴 글부터 3개
+    let more: Awaited<ReturnType<typeof listPublishedPostsMemo>> = []
+    try {
+      const all = await listPublishedPostsMemo()
+      const idx = all.findIndex((p) => p.slug === slug)
+      more = [...all.slice(idx + 1), ...all.slice(0, Math.max(0, idx))].slice(0, 3)
+    } catch {
+      more = []
+    }
+    const textLength = post.html.replace(/<[^>]+>/g, '').length
 
     // JSON-LD 구조화된 데이터 생성
     const jsonLd = createJsonLd({
@@ -116,7 +122,7 @@ export default async function PostPage({ params }: PostPageProps) {
     const giscusRepoId = process.env.NEXT_PUBLIC_GISCUS_REPO_ID || ''
     const giscusCategory = process.env.NEXT_PUBLIC_GISCUS_CATEGORY || ''
     const giscusCategoryId = process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID || ''
-    const enableComments = giscusRepo && giscusRepoId && giscusCategory && giscusCategoryId
+    const enableComments = Boolean(giscusRepo && giscusRepoId && giscusCategory && giscusCategoryId)
 
     return (
       <>
@@ -139,38 +145,32 @@ export default async function PostPage({ params }: PostPageProps) {
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
         />
-        <PostHeroClient
+        <PostView
+          slug={slug}
           title={post.title}
-          coverImageUrl={post.coverImageUrl}
-          author={post.author || '작성자'}
-          publishedAt={post.date || new Date().toISOString()}
-          readTime={Math.ceil(post.content.length / 200)}
-          tags={post.tags || []}
           label={post.label}
-          toc={toc}
-          contentHtml={contentWithIds}
-        />
-
-        {/* Giscus 댓글 시스템 */}
-        {enableComments && (
-          <div className="container-blog">
+          date={post.date}
+          description={post.description}
+          coverImageUrl={post.coverImageUrl}
+          tags={post.tags || []}
+          introHtml={introHtml}
+          sections={sections}
+          readMinutes={Math.max(1, Math.ceil(textLength / 500))}
+          more={more}
+        >
+          {/* Giscus 댓글 시스템 */}
+          {enableComments && (
             <Comments
               repo={giscusRepo}
               repoId={giscusRepoId}
               category={giscusCategory}
               categoryId={giscusCategoryId}
             />
-          </div>
-        )}
-
-        {/* 이미지 확대 모달 */}
-        <ImageZoomModal />
+          )}
+        </PostView>
 
         {/* KaTeX 수식 렌더링 */}
         <KatexRenderer />
-
-        {/* 제목 앵커 링크 복사 기능 */}
-        <HeadingAnchorScript />
 
         {/* Mermaid 다이어그램은 Kroki API로 이미지로 렌더링됨 (MermaidRenderer 불필요) */}
 

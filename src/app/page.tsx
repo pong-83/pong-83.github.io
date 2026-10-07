@@ -2,7 +2,7 @@ import { createHomeMetadata, createJsonLd } from '@/lib/seo'
 import type { PostListItem } from '@/services/notion/client'
 import { listPublishedPostsMemo, getSiteSettingsMemo, getSiteConfigMemo } from '@/lib/request-memo'
 import type { Metadata } from 'next'
-import { HomeClient } from '@/components/HomeClient'
+import { HomeView } from '@/components/pong/HomeView'
 import { Suspense } from 'react'
 import { Skeleton } from '@/components/ui/skeleton'
 
@@ -23,7 +23,6 @@ export default async function Home() {
   let posts: PostListItem[] = []
   let settings: any
   let siteConfig: any
-  let error: string | null = null
 
   try {
     // 병렬로 설정과 포스트 가져오기
@@ -32,8 +31,8 @@ export default async function Home() {
       getSiteConfigMemo(),
       listPublishedPostsMemo(),
     ])
-  } catch (err) {
-    error = err instanceof Error ? err.message : '알 수 없는 오류가 발생했습니다.'
+  } catch {
+    // 글 목록을 못 불러와도 홈은 빈 상태로 보여 줌
 
     // 에러 시에도 설정은 가져오기 시도
     try {
@@ -114,7 +113,7 @@ export default async function Home() {
           </div>
         }
       >
-        <HomeClient posts={posts} settings={settings} error={error} />
+        <HomeView posts={posts} settings={settings} />
       </Suspense>
     </>
   )
