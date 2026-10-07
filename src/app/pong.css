@@ -136,6 +136,8 @@ html.dark .pg-room-pong { background-image: var(--asleep); filter: drop-shadow(1
 @keyframes pg-bubble { 0% { opacity: 0; transform: scale(.3); } 14% { opacity: 1; transform: scale(1); } 82% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(.9) translateY(-6px); } }
 .pg-zzz { position: absolute; left: 186px; bottom: 76px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
 html.dark .pg-zzz { display: block; }
+/* 말풍선이 떠 있는 동안은 떠오르는 z를 잠깐 숨겨요 */
+.pg-bubble + .pg-zzz { visibility: hidden; }
 .pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 14px; opacity: 0; animation: pg-zzz 2.7s ease-out infinite; }
 .pg-zzz b:nth-child(2) { font-size: 18px; animation-delay: .9s; }
 .pg-zzz b:nth-child(3) { font-size: 22px; animation-delay: 1.8s; }

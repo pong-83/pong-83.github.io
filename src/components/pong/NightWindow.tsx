@@ -224,16 +224,16 @@ export function NightWindow() {
         />
       </div>
       <span ref={pong} className="pg-room-pong" aria-hidden="true" onClick={onPong} />
-      <span className="pg-zzz" aria-hidden="true">
-        <b>z</b>
-        <b>z</b>
-        <b>Z</b>
-      </span>
       {bubble && (
         <span key={bubble.id} className="pg-bubble" aria-hidden="true">
           {bubble.text}
         </span>
       )}
+      <span className="pg-zzz" aria-hidden="true">
+        <b>z</b>
+        <b>z</b>
+        <b>Z</b>
+      </span>
       {dark && <Torch />}
     </div>
   )
