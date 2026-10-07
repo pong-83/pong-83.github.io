@@ -50,6 +50,18 @@ export function localFileName(url) {
   return `${hash}${ext}`;
 }
 
+/**
+ * 바꾼 주소를 원래 주소와 같은 길이로 맞춥니다.
+ * React가 1024자 넘는 문자열을 길이 정보와 함께 저장하기 때문에(RSC 'T' 행),
+ * 길이가 달라지면 페이지가 열리지 않습니다. 뒤에 쓰지 않는 쿼리를 붙여 길이를 채웁니다.
+ * 원래보다 길어지면 null을 돌려주고, 그때는 원래 주소를 그대로 둡니다.
+ */
+export function padToLength(local, length) {
+  if (local.length === length) return local;
+  if (local.length > length) return null;
+  return `${local}?${'x'.repeat(length - local.length - 1)}`;
+}
+
 function listTextFiles(dir) {
   const files = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -125,7 +137,11 @@ export async function localizeNotionImages(outDir, options = {}) {
   }
 
   for (const [file, text] of contents) {
-    const next = text.replace(NOTION_IMAGE_URL, (raw) => byUrl.get(decodeUrl(raw)) ?? raw);
+    const next = text.replace(NOTION_IMAGE_URL, (raw) => {
+      const url = decodeUrl(raw);
+      const local = byUrl.get(url);
+      return local ? padToLength(local, url.length) ?? raw : raw;
+    });
     if (next !== text) fs.writeFileSync(file, next);
   }
 
