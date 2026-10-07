@@ -17,7 +17,6 @@ html[data-palette='violet'] { --pg-accent: #5b3df5; --pg-point: #b6f0d6; }
   --pg-line: #e2e2de;
   --pg-card: #eeeeeb;
   --pg-tint: color-mix(in srgb, var(--pg-accent) 16%, #ffffff);
-  --pg-dot: #ffffff;
   --pg-sel: color-mix(in srgb, var(--pg-accent) 25%, #ffffff);
   --pg-sans: 'Instrument Sans', 'Pretendard Variable', Pretendard, 'IBM Plex Sans KR', system-ui, sans-serif;
   --pg-serif: 'Instrument Serif', 'Pretendard Variable', Pretendard, serif;
@@ -76,8 +75,6 @@ html body.pg {
 .pg-photo-frame.has-photo::after { content: ''; position: absolute; inset: 0; background: var(--pg-accent); mix-blend-mode: screen; opacity: .85; transition: opacity .45s ease; pointer-events: none; }
 .pg-photo-btn:hover .pg-photo-frame.has-photo::after { opacity: 0; }
 /* 기본: 찌그러진 별 모양 점 무늬, 마우스를 올리면 사라져요 */
-.pg-star-dots { position: absolute; left: 12%; top: 22%; width: 80%; height: 58%; z-index: 1; pointer-events: none; background-image: radial-gradient(var(--pg-dot) 1.9px, transparent 2.3px); background-size: 7px 7px; -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%20preserveAspectRatio%3D%27none%27%3E%3Cpolygon%20points%3D%2765.3%2C0%2058.2%2C25.4%20100%2C25.4%2063.3%2C60.3%2050%2C100%2042.9%2C73%200%2C96.5%2029.6%2C50.8%2014.3%2C25.4%2038.8%2C25.4%27/%3E%3C/svg%3E") center / 100% 100% no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%20100%20100%27%20preserveAspectRatio%3D%27none%27%3E%3Cpolygon%20points%3D%2765.3%2C0%2058.2%2C25.4%20100%2C25.4%2063.3%2C60.3%2050%2C100%2042.9%2C73%200%2C96.5%2029.6%2C50.8%2014.3%2C25.4%2038.8%2C25.4%27/%3E%3C/svg%3E") center / 100% 100% no-repeat; transform: rotate(-4deg); transition: opacity .4s ease, transform .5s cubic-bezier(.2,.7,.2,1); }
-.pg-photo-btn:hover .pg-star-dots { opacity: 0; transform: rotate(8deg) scale(1.15); }
 .pg-dots { position: absolute; inset: 0; background-image: radial-gradient(#111 1.1px, transparent 1.5px); background-size: 6px 6px; mix-blend-mode: multiply; opacity: .55; transition: opacity .35s ease; pointer-events: none; }
 .pg-photo-btn:hover .pg-dots { opacity: 0; }
 .pg-tint { position: absolute; inset: 0; opacity: 0; background: color-mix(in srgb, var(--pg-point) 65%, #ffffff); transition: opacity .35s ease; }
