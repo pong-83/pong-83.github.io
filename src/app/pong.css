@@ -249,12 +249,13 @@ html body.pg {
 .pg-intro > p:first-child { font-size: 18px; line-height: 1.8; }
 .pg-sec { display: grid; grid-template-columns: 64px minmax(0, 260px) minmax(0, 1fr); gap: 16px 24px; padding: 32px 16px; margin: 0 -16px; border-top: 1px solid var(--pg-line); border-radius: 8px; transition: background .25s ease; scroll-margin-top: 96px; }
 .pg-sec:last-child { border-bottom: 1px solid var(--pg-line); }
-.pg-sec:hover { background: var(--pg-card); }
+/* 폰은 손가락이 닿으면 hover 가 붙어 스크롤 중에 섹션 전체를 다시 그려요. 마우스가 있을 때만 켜요 */
+@media (hover: hover) { .pg-sec:hover { background: var(--pg-card); } }
 .pg-sec .num { font-size: 14px; color: var(--pg-muted); padding-top: 4px; line-height: 1.6; transition: transform .25s cubic-bezier(.2,.7,.2,1); }
-.pg-sec:hover .num { transform: translateX(6px); }
+@media (hover: hover) { .pg-sec:hover .num { transform: translateX(6px); } }
 .pg-sec h2 { margin: 0; font-size: 22px; line-height: 1.6; font-weight: 600; letter-spacing: -0.01em; }
 .pg-wavy span { display: inline-block; white-space: pre; }
-.pg-sec:hover .pg-wavy span { animation: pg-hwave 1.2s ease-in-out infinite; }
+@media (hover: hover) { .pg-sec:hover .pg-wavy span { animation: pg-hwave 1.2s ease-in-out infinite; } }
 @keyframes pg-hwave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .pg-tags { display: flex; gap: 6px 14px; flex-wrap: wrap; margin-top: 32px; }
 .pg-tags span { font-size: 14px; color: var(--pg-ink); }
