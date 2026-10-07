@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
-import { PALETTES, PALETTE_STORAGE_KEY as STORAGE_KEY, type PaletteId } from '@/config/pong'
+import { ABOUT_EVENT, PALETTES, PALETTE_STORAGE_KEY as STORAGE_KEY, type PaletteId } from '@/config/pong'
 import { Star } from './Star'
 
 function readPalette(): number {
@@ -75,7 +75,18 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
         </button>
         <Link href="/#posts" className="pg-ul">POSTS</Link>
         <Link href="/#calendar" className="pg-ul">CALENDAR</Link>
-        <Link href="/#about" className="pg-ul">ABOUT</Link>
+        <Link
+          href="/#about"
+          className="pg-ul"
+          onClick={(e) => {
+            if (!isHome) return
+            e.preventDefault()
+            window.history.pushState(null, '', '#about')
+            window.dispatchEvent(new Event(ABOUT_EVENT))
+          }}
+        >
+          ABOUT
+        </Link>
       </nav>
       {isHome ? (
         <button type="button" className="pg-view" onClick={openRandom}>

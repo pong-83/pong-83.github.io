@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import Link from 'next/link'
 import type { PostListItem, SiteSettings } from '@/services/notion/types'
-import { NOW_PHRASES, TITLE_SUFFIX } from '@/config/pong'
+import { ABOUT_EVENT, NOW_PHRASES, TITLE_SUFFIX } from '@/config/pong'
 import { Star } from './Star'
 
 const SOCIAL_LABELS: [keyof SiteSettings['socialLinks'], string][] = [
@@ -132,6 +132,26 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const [photoFailed, setPhotoFailed] = useState(false)
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
 
+  // ABOUT: 넓은 화면(사진과 정보가 나란히)에서는 프로필 맨 위, 좁은 화면에서는 이름에 맞춰요
+  useEffect(() => {
+    const goAbout = () => {
+      if (window.location.hash !== '#about') return
+      const left = document.querySelector<HTMLElement>('.pg-hero-l')
+      const info = document.querySelector<HTMLElement>('.pg-info')
+      const sideBySide = left && info && Math.abs(left.offsetTop - info.offsetTop) < 40
+      const target = sideBySide ? document.querySelector<HTMLElement>('.pg-hero') : document.getElementById('about')
+      target?.scrollIntoView({ block: 'start' })
+    }
+    const raf = window.requestAnimationFrame(goAbout)
+    window.addEventListener('hashchange', goAbout)
+    window.addEventListener(ABOUT_EVENT, goAbout)
+    return () => {
+      window.cancelAnimationFrame(raf)
+      window.removeEventListener('hashchange', goAbout)
+      window.removeEventListener(ABOUT_EVENT, goAbout)
+    }
+  }, [])
+
   const socials = SOCIAL_LABELS.filter(([k]) => k !== 'email' && settings.socialLinks?.[k])
   const email = settings.socialLinks?.email
 
@@ -140,7 +160,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
       <section className="pg-wrap pg-hero">
         <div className="pg-hero-l">
           <div className="pg-photo-btn">
-            <div className="pg-photo-frame">
+            <div className={`pg-photo-frame${hasPhoto ? ' has-photo' : ''}`}>
               {hasPhoto ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={settings.profileImage} alt="" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
@@ -161,7 +181,6 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <span className="pg-chip" style={{ right: 24, bottom: 24 }}>0 KB</span>
                 </>
               )}
-              {hasPhoto && <div className="pg-dots" aria-hidden="true" />}
             </div>
             {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
             <span className="pg-hi" aria-hidden="true">Hi, I&apos;m {name}</span>

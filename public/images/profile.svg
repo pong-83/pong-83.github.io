@@ -1,6 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="400" height="500">
   <rect width="400" height="500" fill="#D9F57A"/>
-  <circle cx="318" cy="92" r="46" fill="#FFE36E"/>
   <path d="M84 500c0-92 52-150 116-150s116 58 116 150z" fill="#1F5EFF"/>
   <path d="M176 330h48v40c0 13-11 22-24 22s-24-9-24-22z" fill="#F4C7A1"/>
   <ellipse cx="200" cy="250" rx="82" ry="94" fill="#F4C7A1"/>
@@ -9,5 +8,4 @@
   <circle cx="150" cy="292" r="12" fill="#F2462E" opacity=".35"/>
   <circle cx="250" cy="292" r="12" fill="#F2462E" opacity=".35"/>
   <path d="M184 304q16 16 32 0" stroke="#111111" stroke-width="5" fill="none" stroke-linecap="round"/>
-  <path d="M318 62l9 20 22 3-16 15 4 22-19-11-19 11 4-22-16-15 22-3z" fill="#111111"/>
 </svg>

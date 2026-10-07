@@ -11,7 +11,7 @@ import { PALETTE_BOOT_SCRIPT } from "@/config/pong";
 import { getSiteSettingsMemo, getSiteConfigMemo, listPublishedPostsMemo } from "@/lib/request-memo";
 
 const FONTS_URL =
-  "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans+KR:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap";
+  "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400&display=swap";
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteConfig = await getSiteConfigMemo();
@@ -77,6 +77,7 @@ export default async function RootLayout({
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href={FONTS_URL} />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
       </head>
       <body className="pg antialiased">
         {/* Google Analytics - Notion 설정에 따라 조건부 렌더링 */}
