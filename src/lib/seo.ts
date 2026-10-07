@@ -23,7 +23,7 @@ const fallbackSEO = {
   author: '작성자',
   locale: 'ko_KR',
   type: 'website' as const,
-  ogImage: `${SITE_URL}/og-images/default.jpeg`,
+  ogImage: `${SITE_URL}/images/share.png`,
   twitterHandle: '@your_twitter',
 }
 
@@ -42,7 +42,7 @@ function getDefaultSEO(siteConfig?: SiteConfig) {
     locale: 'ko_KR' as const,
     type: 'website' as const,
     // 항상 로컬에 다운로드된 OG 이미지 사용 (Notion S3 URL은 임시 URL이라 만료됨)
-    ogImage: `${SITE_URL}/og-images/default.jpeg`,
+    ogImage: `${SITE_URL}/images/share.png`,
     twitterHandle: siteConfig.twitterHandle || fallbackSEO.twitterHandle,
   }
 }

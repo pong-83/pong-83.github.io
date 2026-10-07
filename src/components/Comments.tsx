@@ -53,8 +53,8 @@ export function Comments({
   const giscusTheme = currentTheme === 'dark' ? darkTheme : lightTheme
 
   return (
-    <div className="mt-12 pt-8 border-t border-border">
-      <h2 className="text-2xl font-bold mb-6">Comments</h2>
+    <div className="pg-comments">
+      <h2 className="pg-comments-h">COMMENTS</h2>
       <Suspense fallback={
         <div className="flex items-center justify-center py-8 text-muted-foreground">
           <div className="flex items-center gap-2">
