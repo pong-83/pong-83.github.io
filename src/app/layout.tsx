@@ -43,7 +43,7 @@ export async function generateMetadata(): Promise<Metadata> {
       title: siteConfig.siteTitle,
       description: siteConfig.siteDescription,
       images: siteConfig.ogImage ? [siteConfig.ogImage] : undefined,
-      creator: siteConfig.twitterHandle,
+      creator: siteConfig.twitterHandle || undefined,
     },
     alternates: {
       types: {

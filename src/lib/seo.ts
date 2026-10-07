@@ -24,7 +24,7 @@ const fallbackSEO = {
   locale: 'ko_KR',
   type: 'website' as const,
   ogImage: `${SITE_URL}/images/share.png`,
-  twitterHandle: '@your_twitter',
+  twitterHandle: '',
 }
 
 /**
@@ -105,7 +105,7 @@ export function createMetadata({
       title: fullTitle,
       description: fullDescription,
       images: [fullImage],
-      creator: defaultSEO.twitterHandle,
+      creator: defaultSEO.twitterHandle || undefined,
     },
     alternates: {
       canonical: fullUrl,
