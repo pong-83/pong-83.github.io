@@ -131,7 +131,7 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
       {egg && (
         <div className="pg-egg" aria-live="polite">
           {CONFETTI.map((i) => (
-            <Star key={i} size={10 + (i % 4) * 4} className="pg-egg-star" fill="#111111" style={{ '--x': `${(i * 53) % 100}vw`, '--delay': `${(i % 6) * 0.12}s` } as CSSProperties} />
+            <Star key={i} size={10 + (i % 4) * 4} className="pg-egg-star" fill="var(--pg-ink)" style={{ '--x': `${(i * 53) % 100}vw`, '--delay': `${(i % 6) * 0.12}s` } as CSSProperties} />
           ))}
           <span className="pg-egg-run" style={{ '--sprite': `url(${BASE}/images/pong-run.png)` } as CSSProperties} />
           <p className="pg-egg-msg">별 다섯 개 적립! 오늘은 좋은 일이 생길 거예요 ✶</p>

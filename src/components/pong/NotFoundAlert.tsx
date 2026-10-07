@@ -47,17 +47,17 @@ export function NotFoundAlert({ slugs }: { slugs: string[] }) {
             <span className="pg-q" aria-hidden="true" style={{ position: 'absolute', left: 0, right: 0, top: 16, fontFamily: 'var(--pg-serif)', fontStyle: 'italic', fontSize: 26, lineHeight: 1, color: 'var(--pg-accent)' }}>?</span>
           </span>
           <h1 id="nf-title" style={{ margin: 0, fontSize: 18, fontWeight: 600, letterSpacing: '-0.01em', lineHeight: 1.4 }}>이 파일을 찾을 수 없어요</h1>
-          <p style={{ margin: 0, fontSize: 14, color: '#5C5C5C', lineHeight: 1.6 }}>주소가 바뀌었거나, 글이 숨김 상태로 바뀌었을 수 있어요.</p>
+          <p style={{ margin: 0, fontSize: 14, color: 'var(--pg-sub)', lineHeight: 1.6 }}>주소가 바뀌었거나, 글이 숨김 상태로 바뀌었을 수 있어요.</p>
           {tried && (
             <span style={{ fontSize: 12, color: 'var(--pg-muted)', background: 'var(--pg-point)', padding: '2px 8px', borderRadius: 4 }}>닫을 곳이 없어요. 아래에서 골라 주세요.</span>
           )}
           <div style={{ display: 'flex', gap: 8, width: '100%', marginTop: 12 }}>
             {random && (
-              <Link href={`/posts/${random}/`} className="pg-btn" style={{ flex: 1, minHeight: 44, borderColor: '#D6D6D2', borderRadius: 8 }}>
+              <Link href={`/posts/${random}/`} className="pg-btn" style={{ flex: 1, minHeight: 44, borderColor: 'var(--pg-line2)', borderRadius: 8 }}>
                 아무 글이나 열기
               </Link>
             )}
-            <Link href="/" className="pg-btn" style={{ flex: 1, minHeight: 44, border: 0, borderRadius: 8, background: 'var(--pg-accent)', color: '#fff' }}>
+            <Link href="/" className="pg-btn" style={{ flex: 1, minHeight: 44, border: 0, borderRadius: 8, background: 'var(--pg-accent)', color: 'var(--pg-on-accent)' }}>
               홈으로 가기
             </Link>
           </div>

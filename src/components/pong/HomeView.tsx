@@ -474,7 +474,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                       ? '아직 올린 글이 없어요'
                       : `${filter} 폴더는 아직 비어 있어요`}
                 </span>
-                <span style={{ fontSize: 13, color: '#5C5C5C' }}>0 items · 0 KB</span>
+                <span style={{ fontSize: 13, color: 'var(--pg-sub)' }}>0 items · 0 KB</span>
                 {words.length > 0 ? (
                   <button
                     type="button"
@@ -576,7 +576,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
             <div className="pg-cal-empty">
               <Star size={28} className="pg-bob" />
               <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>{mm + 1}월은 쉬어 갔어요</span>
-              <span style={{ fontSize: 13, color: '#5C5C5C' }}>이 달에 올린 글이 없어요.</span>
+              <span style={{ fontSize: 13, color: 'var(--pg-sub)' }}>이 달에 올린 글이 없어요.</span>
               {posts.length > 0 && (
                 <button type="button" className="pg-btn" style={{ marginTop: 4 }} onClick={() => setMonthOff(0)}>
                   글 있는 달로 가기 →
