@@ -368,10 +368,12 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 
 /* Feeling lucky 이스터에그: 7번째 누르면 별 캐릭터가 뛰어감 */
 .pg-egg { position: fixed; inset: 0; z-index: 100; pointer-events: none; overflow: hidden; }
-.pg-egg-run { position: absolute; bottom: 12vh; left: 0; width: 122.5px; height: 130px; background: 0 0 / 980px 130px no-repeat; animation: pg-egg-dash 2.8s linear forwards, pg-egg-legs .64s steps(8) infinite; }
+.pg-egg-run { position: absolute; bottom: 12vh; left: 0; width: 144px; height: 135px; background: 0 0 / 1296px 135px no-repeat; image-rendering: pixelated; animation: pg-egg-hop .45s ease-out, pg-egg-dash 2.6s linear .45s both, pg-egg-legs .64s steps(8) .45s infinite; }
 /* pong이 그린 2장짜리 달리기 프레임을 넘기면서 화면을 가로질러 달려가요 */
-@keyframes pg-egg-dash { from { translate: -160px 0; } to { translate: 100vw 0; } }
-@keyframes pg-egg-legs { to { background-position: -980px 0; } }
+/* 첫 칸은 깜짝 놀란 얼굴: 제자리에서 폴짝 뛴 뒤 달려 나가요 */
+@keyframes pg-egg-hop { 40% { transform: translateY(-14px); } }
+@keyframes pg-egg-dash { from { translate: 6vw 0; } to { translate: 100vw 0; } }
+@keyframes pg-egg-legs { from { background-position: -144px 0; } to { background-position: -1296px 0; } }
 .pg-egg-star { position: absolute; top: -24px; left: var(--x); animation: pg-egg-fall 2.4s ease-in var(--delay) forwards; }
 @keyframes pg-egg-fall { to { transform: translateY(110vh) rotate(540deg); } }
 .pg-egg-msg { position: absolute; left: 50%; top: 38%; margin: 0; padding: 10px 18px; background: var(--pg-ink); color: #fff; font-size: 15px; font-weight: 600; white-space: nowrap; transform: translateX(-50%) rotate(-3deg); animation: pg-egg-pop 3.6s cubic-bezier(.2,1.6,.4,1) forwards; }
