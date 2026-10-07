@@ -230,34 +230,26 @@ html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
 /* 홈: 글 목록 */
 .pg-files { display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; border-top: 1px solid var(--pg-ink); padding-bottom: 40px; }
 .pg-list { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; }
-/* 홈: 글 찾기. 목록 머리의 돋보기를 누르면 머리줄이 손글씨 검색칸으로 바뀌고, 돋보기가 글자 끝을 따라다녀요 */
-.pg-list-head { align-items: center; }
-.pg-find-btn { flex: none; display: inline-flex; align-items: center; gap: 6px; margin: -6px -6px -6px 0; padding: 6px 8px; border: 0; border-radius: 999px; background: transparent; color: var(--pg-ink); font: inherit; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; cursor: pointer; transition: background .2s ease; }
-.pg-find-btn svg { transition: transform .35s cubic-bezier(.3,1.8,.5,1); }
-.pg-find-btn:hover { background: var(--pg-tint); }
-.pg-find-btn:hover svg { transform: rotate(-18deg) scale(1.15); }
-.pg-find { position: relative; display: flex; align-items: center; gap: 4px; min-height: 52px; padding: 4px 12px 8px; color: var(--pg-ink); animation: pg-find-in .35s cubic-bezier(.3,1.4,.5,1); }
-@keyframes pg-find-in { from { opacity: 0; transform: translateY(-6px); } }
-.pg-find-field { display: inline-grid; min-width: 0; max-width: calc(100% - 120px); font-family: var(--pg-serif); font-style: italic; font-size: 28px; line-height: 1.2; cursor: text; }
-.pg-find-field::after, .pg-find-field input { grid-area: 1 / 1; font: inherit; letter-spacing: -0.01em; padding: 0; margin: 0; }
-.pg-find-field::after { content: attr(data-v) ' '; visibility: hidden; white-space: pre; overflow: hidden; }
-.pg-find-field input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; }
-.pg-find-field input::placeholder { color: var(--pg-faint); }
-.pg-find-field input::-webkit-search-cancel-button { display: none; }
-.pg-loupe { flex: none; display: inline-flex; transform-origin: 40% 40%; animation: pg-lens-peek 1.6s ease-in-out infinite; }
-.pg-loupe.hop { animation: pg-lens-hop .32s cubic-bezier(.3,1.8,.5,1), pg-lens-peek 1.6s ease-in-out .32s infinite; }
-.pg-find.miss .pg-loupe { animation: pg-lens-shake .5s ease-in-out 2; }
-@keyframes pg-lens-peek { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(6deg) translateY(-2px); } }
-@keyframes pg-lens-hop { 0% { transform: translate(-6px, 0) scale(.9); } 60% { transform: translate(2px, -5px) scale(1.12) rotate(-12deg); } 100% { transform: none; } }
-@keyframes pg-lens-shake { 0%, 100% { transform: none; } 25% { transform: translateX(-5px) rotate(-14deg); } 75% { transform: translateX(5px) rotate(14deg); } }
-.pg-find-line { position: absolute; left: 10px; right: 10px; bottom: 2px; width: calc(100% - 20px); height: 8px; color: var(--pg-ink); stroke-dasharray: 420; stroke-dashoffset: 420; animation: pg-draw .6s ease-out .05s forwards; }
-@keyframes pg-draw { to { stroke-dashoffset: 0; } }
-.pg-find-n { margin-left: auto; flex: none; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: var(--pg-faint); font-variant-numeric: tabular-nums; }
-.pg-find-x { flex: none; width: 32px; height: 32px; margin-right: -6px; border: 0; border-radius: 50%; background: transparent; color: var(--pg-ink); font-size: 22px; line-height: 1; cursor: pointer; transition: background .2s ease, transform .3s cubic-bezier(.3,1.6,.5,1); }
-.pg-find-x:hover { background: var(--pg-tint); transform: rotate(90deg); }
-.pg-find ~ .pg-row { animation: pg-row-in .35s cubic-bezier(.3,1.3,.5,1) both; animation-delay: calc(var(--i, 0) * 30ms); }
-@keyframes pg-row-in { from { opacity: 0; transform: translateX(-10px); } }
-@media (max-width: 640px) { .pg-find-field { font-size: 23px; } }
+/* 홈: 글 찾기 폴더. Finder 스마트 폴더처럼 테두리만 있는 폴더이고, 열면 이름칸이 진짜 입력칸이 돼요 */
+.pg-fold-find .pg-fbox { padding: 0; border: 0; background: transparent; cursor: pointer; font: inherit; color: var(--pg-ink); }
+.pg-fold-find.is-on .pg-fbox { width: 150px; height: 116px; }
+.pg-fold-find .tab, .pg-fold-find .back { background: var(--pg-bg); border: 1.5px solid var(--pg-ink); box-sizing: border-box; }
+.pg-fold-find .tab { border-bottom: 0; }
+.pg-fold-find .front { display: flex; align-items: center; justify-content: center; background: var(--pg-paper); border: 1.5px solid var(--pg-ink); box-sizing: border-box; box-shadow: none; }
+.pg-fold-find .front svg { width: 30%; height: auto; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+.pg-fold-find:hover .front svg, .pg-fold-find.is-on .front svg { transform: rotate(-14deg) scale(1.08); }
+/* 찾은 글이 있으면 서류가 쏙 올라오고, 없으면 폴더가 고개를 저어요 */
+.pg-fold-find.hit .sheet { transform: translateY(-16px) rotate(-3deg); }
+.pg-fold-find.hit .front { transform: rotateX(-22deg); }
+.pg-fold-find.miss .pg-fbox { animation: pg-find-no .45s ease-in-out; }
+@keyframes pg-find-no { 25% { transform: translateX(-4px) rotate(-2deg); } 75% { transform: translateX(4px) rotate(2deg); } }
+.pg-find-name { display: inline-grid !important; cursor: text; }
+.pg-find-name::after, .pg-find-name input { grid-area: 1 / 1; font: inherit; padding: 0; margin: 0; letter-spacing: inherit; }
+.pg-find-name::after { content: attr(data-v) ' '; visibility: hidden; white-space: pre; max-width: 160px; overflow: hidden; }
+.pg-find-name input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; caret-color: var(--pg-ink); }
+.pg-find-name input::placeholder { color: var(--pg-faint); }
+.pg-find-name input::-webkit-search-cancel-button { display: none; }
+@media (max-width: 720px) { .pg-fold-find.is-on .pg-fbox { width: 62px; height: 48px; } .pg-flab.pg-find-name { font-size: 16px; } .pg-find-name::after { max-width: 96px; } }
 .pg-row mark { background: var(--pg-point); color: inherit; box-shadow: inset 0 -2px 0 var(--pg-ink); }
 .pg-list-head { display: flex; gap: 24px; padding: 10px 12px; font-size: 12px; font-weight: 500; letter-spacing: 0.04em; color: var(--pg-faint); border-bottom: 1px solid var(--pg-line); line-height: 1.6; }
 .pg-row { display: flex; align-items: center; gap: 24px; padding: 12px; border-radius: 6px; transition: background .15s ease; line-height: 1.5; }
