@@ -5,7 +5,6 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { ABOUT_EVENT, PALETTES, PALETTE_STORAGE_KEY as STORAGE_KEY, type PaletteId } from '@/config/pong'
 import { Star } from './Star'
-import { ThemeCord } from './ThemeCord'
 
 const TAPS_FOR_EGG = 5 // 별 로고를 2초 안에 5번 연타하면 이스터에그
 const TAP_WINDOW_MS = 2000
@@ -115,22 +114,19 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
           ABOUT
         </Link>
       </nav>
-      <div className="pg-hdr-r">
       {isHome ? (
         <button type="button" className="pg-view" onClick={openRandom}>
           <span className="va">{label}</span>
           <span className="vb">Feeling lucky? Open a random post.</span>
-          <span className="vm">{name}<span className="vm-s">&apos;s page</span></span>
+          <span className="vm">{name}&apos;s page</span>
         </button>
       ) : (
         <Link href="/" className="pg-view">
           <span className="va">{label}</span>
           <span className="vb">Would you like to return to the home page?</span>
-          <span className="vm">{name}<span className="vm-s">&apos;s page</span></span>
+          <span className="vm">{name}&apos;s page</span>
         </Link>
       )}
-        <ThemeCord />
-      </div>
     </header>
       {egg && (
         <div className="pg-egg" aria-live="polite">

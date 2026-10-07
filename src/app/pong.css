@@ -96,45 +96,43 @@ html body.pg {
 .pg-view:active { color: #1f4bff; }
 .pg-view .vm { display: none; }
 
-/* 불 끄는 줄: 끝에 미니 퐁이 매달려 있고, 다크 모드에선 퐁이 잠들어요 */
-.pg-hdr-r { display: flex; align-items: center; gap: 20px; flex: none; }
-.pg-cord { position: relative; width: 32px; height: 32px; margin: -6px 0; padding: 0; border: 0; background: none; cursor: grab; flex: none; touch-action: none; display: inline-flex; align-items: center; justify-content: center; transition: transform .5s cubic-bezier(.3,1.6,.5,1); }
-.pg-cord:active { cursor: grabbing; }
-.pg-cord::before { content: ''; position: absolute; left: 15.25px; bottom: 24px; width: 1.5px; height: 160px; background: linear-gradient(transparent, var(--pg-ink) 75%); opacity: .55; }
-.pg-cord-star { position: relative; }
-.pg-cord-star polygon { fill: var(--pg-accent); stroke: var(--pg-ink); stroke-width: 5; transition: fill .3s ease; }
-.pg-cord.is-pulling { animation: pg-cord-pull .52s cubic-bezier(.3,1.5,.5,1); }
-@keyframes pg-cord-pull { 0% { transform: none; } 35% { transform: translateY(30px); } 62% { transform: translateY(-5px); } 100% { transform: none; } }
-/* 마우스를 올리면 살짝 내려와서 당길 수 있다는 걸 알려줘요 */
-@media (hover: hover) { .pg-cord:hover:not(.is-pulling) { animation: pg-cord-hint 1.4s ease-in-out infinite; } }
-@keyframes pg-cord-hint { 0%, 100% { transform: none; } 40% { transform: translateY(6px); } }
-/* 불을 끄면 퐁이 아래에서 올라와 잠들고, 켜면 깨서 폴짝 뛰어요 */
-.pg-nap { position: fixed; left: 50%; bottom: 0; z-index: 90; width: 166px; height: 154px; margin-left: -83px; pointer-events: none; }
-.pg-nap-pong { position: absolute; inset: 0; animation: pg-nap-rise 3.4s cubic-bezier(.3,1.3,.5,1) both; }
-.pg-nap-pong i { position: absolute; inset: 0; background: center / contain no-repeat; image-rendering: pixelated; }
-.pg-nap-pong .a { background-image: var(--awake); }
-.pg-nap-pong .s { background-image: var(--asleep); opacity: 0; }
-html.dark .pg-nap-pong i { filter: drop-shadow(2px 0 0 #ececea) drop-shadow(-2px 0 0 #ececea) drop-shadow(0 2px 0 #ececea) drop-shadow(0 -2px 0 #ececea); }
-@keyframes pg-nap-rise { 0% { transform: translateY(105%); } 14%, 82% { transform: translateY(10%); } 100% { transform: translateY(105%); } }
-.pg-nap.is-sleep .a { animation: pg-nap-out 3.4s steps(1) both; }
-.pg-nap.is-sleep .s { animation: pg-nap-in 3.4s steps(1) both; }
-.pg-nap.is-sleep i { transform-origin: 50% 90%; }
-.pg-nap.is-sleep .s { animation: pg-nap-in 3.4s steps(1) both, pg-nap-nod 3.4s ease-in-out both; }
-@keyframes pg-nap-out { 0% { opacity: 1; } 32% { opacity: 0; } }
-@keyframes pg-nap-in { 0% { opacity: 0; } 32% { opacity: 1; } }
-@keyframes pg-nap-nod { 0%, 32% { transform: none; } 44%, 76% { transform: rotate(-6deg) translateY(2px); } 100% { transform: rotate(-6deg) translateY(2px); } }
-.pg-nap.is-wake .a { opacity: 0; animation: pg-nap-in 3.4s steps(1) both; }
-.pg-nap.is-wake .s { animation: pg-nap-out 3.4s steps(1) both; }
-.pg-nap.is-wake .pg-nap-pong i { animation-name: pg-nap-in, pg-nap-hop; animation-duration: 3.4s; animation-fill-mode: both; animation-timing-function: steps(1), ease-out; }
-.pg-nap.is-wake .pg-nap-pong .s { animation-name: pg-nap-out, pg-nap-hop; }
-@keyframes pg-nap-hop { 0%, 32% { transform: none; } 38% { transform: scale(1.08, .9); } 46% { transform: translateY(-34px) scale(.96, 1.06); } 56% { transform: none; } 60% { transform: scale(1.05, .94); } 64%, 100% { transform: none; } }
-.pg-nap .pg-zzz { position: absolute; left: 128px; top: 26px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
-.pg-nap.is-sleep .pg-zzz { display: block; animation: pg-nap-zzz 3.4s linear both; }
-@keyframes pg-nap-zzz { 0%, 34% { opacity: 0; } 40%, 76% { opacity: 1; } 84%, 100% { opacity: 0; } }
-.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 16px; opacity: 0; animation: pg-zzz 1.5s ease-out infinite; }
-.pg-zzz b:nth-child(2) { font-size: 20px; animation-delay: .5s; }
-.pg-zzz b:nth-child(3) { font-size: 24px; animation-delay: 1s; }
-@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(14px, -34px); } }
+/* 푸터의 방: 창문의 해를 끌어내리면 달이 뜨고(다크 모드) 옆의 퐁이 잠들어요 */
+/* 오른쪽 아래에는 읽은 분량 창이 떠서, 창문은 왼쪽에 둬요 */
+.pg-room { position: relative; display: flex; align-items: flex-end; gap: 14px; height: 132px; margin-bottom: -1px; }
+.pg-room::before { content: ''; position: absolute; left: 0; bottom: 18px; width: 104px; height: 6px; border-radius: 1px; background: var(--pg-ink); }
+.pg-window { position: relative; margin-left: 7px; width: 90px; height: 100px; margin-bottom: 24px; box-sizing: border-box; border: 1.5px solid var(--pg-ink); border-radius: 3px; overflow: hidden; background: #cfe7ff; transition: background .6s ease; }
+html.dark .pg-window { background: #1b2140; }
+/* 창살은 해와 달 앞에 있어요 */
+.pg-window::before, .pg-window::after { content: ''; position: absolute; z-index: 2; background: var(--pg-ink); pointer-events: none; }
+.pg-window::before { left: 50%; top: 0; bottom: 0; width: 1.5px; margin-left: -.75px; }
+.pg-window::after { top: 50%; left: 0; right: 0; height: 1.5px; margin-top: -.75px; }
+.pg-sky i { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff6c8; opacity: 0; transition: opacity .6s ease; }
+.pg-sky i:nth-child(1) { left: 12px; top: 14px; }
+.pg-sky i:nth-child(2) { left: 66px; top: 22px; animation-delay: .7s; }
+.pg-sky i:nth-child(3) { left: 20px; top: 62px; animation-delay: 1.3s; }
+html.dark .pg-sky i { opacity: 1; animation: pg-twinkle 2.2s ease-in-out infinite; }
+@keyframes pg-twinkle { 50% { opacity: .25; } }
+.pg-orb { position: absolute; left: 50%; top: 10px; width: 40px; height: 40px; margin-left: -20px; padding: 0; border: 0; background: none; cursor: grab; touch-action: none; z-index: 1; }
+.pg-orb:active { cursor: grabbing; }
+.pg-orb::after { content: ''; position: absolute; left: 7px; top: 7px; width: 26px; height: 26px; border-radius: 50%; background: #ffc93c; box-shadow: 0 0 0 5px rgba(255,201,60,.28), 0 0 18px rgba(255,190,40,.6); }
+/* 달은 동그라미 안쪽 그림자로 초승달 모양을 만들어요 */
+html.dark .pg-orb::after { background: transparent; box-shadow: inset -8px -3px 0 0 #f6efc4; transform: rotate(-12deg); }
+.pg-orb.rise { animation: pg-orb-rise .75s cubic-bezier(.2,.9,.3,1.2) both; }
+@keyframes pg-orb-rise { 0% { transform: translateY(96px); } 100% { transform: none; } }
+/* 마우스를 올리면 살짝 내려가서 끌 수 있다는 걸 알려줘요 */
+@media (hover: hover) { .pg-orb:hover:not(.rise) { animation: pg-orb-hint 1.4s ease-in-out infinite; } }
+@keyframes pg-orb-hint { 0%, 100% { transform: none; } 40% { transform: translateY(5px); } }
+.pg-orb:focus-visible { outline: 2px solid var(--pg-ink); outline-offset: -2px; border-radius: 50%; }
+.pg-room-pong { position: relative; width: 64px; height: 59px; margin-bottom: 16px; background: var(--awake) center / contain no-repeat; image-rendering: pixelated; }
+html.dark .pg-room-pong { background-image: var(--asleep); filter: drop-shadow(1.5px 0 0 #ececea) drop-shadow(-1.5px 0 0 #ececea) drop-shadow(0 1.5px 0 #ececea) drop-shadow(0 -1.5px 0 #ececea); }
+.pg-room-pong.hop { transform-origin: 50% 100%; animation: pg-room-hop .7s ease-out .2s both; }
+@keyframes pg-room-hop { 0% { transform: none; } 20% { transform: scale(1.08, .9); } 45% { transform: translateY(-26px) scale(.95, 1.06); } 72% { transform: none; } 84% { transform: scale(1.05, .94); } 100% { transform: none; } }
+.pg-zzz { position: absolute; left: 164px; bottom: 76px; display: none; pointer-events: none; font-family: var(--pg-mono); font-weight: 700; color: var(--pg-ink); line-height: 1; }
+html.dark .pg-zzz { display: block; }
+.pg-zzz b { position: absolute; left: 0; bottom: 0; font-size: 10px; opacity: 0; animation: pg-zzz 3s ease-out infinite; }
+.pg-zzz b:nth-child(2) { font-size: 13px; animation-delay: 1s; }
+.pg-zzz b:nth-child(3) { font-size: 16px; animation-delay: 2s; }
+@keyframes pg-zzz { 0% { opacity: 0; transform: translate(0, 0); } 20% { opacity: .9; } 100% { opacity: 0; transform: translate(10px, -26px); } }
 /* 다크 모드 손전등: 마우스 주변만 밝게 */
 .pg-torch { position: fixed; inset: 0; z-index: 55; pointer-events: none; opacity: 0; transition: opacity .4s ease; background: radial-gradient(circle 280px at var(--x, 50%) var(--y, 50%), rgba(255,244,214,.06) 0, transparent 45%, rgba(0,0,0,.24) 100%); }
 .pg-torch.on { opacity: 1; }
@@ -142,7 +140,6 @@ html.dark .pg-nap-pong i { filter: drop-shadow(2px 0 0 #ececea) drop-shadow(-2px
 :root.pg-vt::view-transition-old(root), :root.pg-vt::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 html.dark .pg-egg-run::before { filter: drop-shadow(0 0 1px #fff) drop-shadow(0 0 1px #fff); }
 html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
-@media (prefers-reduced-motion: reduce) { .pg-cord, .pg-cord:hover { animation: none !important; } .pg-nap { display: none; } }
 
 /* 홈: 프로필 */
 .pg-hero { display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; padding-top: 72px; padding-bottom: 64px; }
@@ -418,7 +415,6 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 @media (max-width: 720px) {
   .pg-wrap { padding-left: 16px; padding-right: 16px; }
   .pg-nav { gap: 16px; }
-  .pg-hdr-r { gap: 14px; }
   .pg-hero-l { max-width: 240px; }
   .pg-name { font-size: 44px; }
   .pg-info { padding-top: 0; padding-left: 0; }
@@ -440,13 +436,6 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
   .pg-card { min-height: 0; gap: 24px; }
   .pg-dlg { right: 16px; left: 16px; width: auto; }
   .pg-nf .big { font-size: 120px; }
-}
-/* 좁은 폰에서는 줄이 들어갈 자리를 만들려고 이름만 보여줘요 */
-@media (max-width: 400px) {
-  .pg-hdr { gap: 12px; }
-  .pg-nav { gap: 13px; }
-  .pg-hdr-r { gap: 8px; }
-  .pg-view .vm-s { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
   .pg *, .pg *::before, .pg *::after { transition: none !important; animation: none !important; }

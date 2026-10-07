@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Star } from './Star'
+import { NightWindow } from './NightWindow'
 
 const SPARKS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324]
 
@@ -23,6 +24,7 @@ export function PongFooter({ name }: { name: string }) {
   if (isHome) {
     return (
       <footer className="pg-wrap pg-foot">
+        <NightWindow />
         <div className="pg-foot-in">
           <button
             type="button"
@@ -55,6 +57,7 @@ export function PongFooter({ name }: { name: string }) {
 
   return (
     <footer className="pg-wrap pg-foot">
+      <NightWindow />
       <div className="pg-foot-in" style={{ paddingTop: 20, alignItems: 'center' }}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           {name}
