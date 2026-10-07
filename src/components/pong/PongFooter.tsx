@@ -5,7 +5,6 @@ import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Star } from './Star'
 
-const BASE = process.env.NEXT_PUBLIC_BASE_PATH || ''
 const SPARKS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324]
 
 export function PongFooter({ name }: { name: string }) {
@@ -47,7 +46,6 @@ export function PongFooter({ name }: { name: string }) {
           </button>
           <span style={{ display: 'flex', gap: 24 }}>
             <span>© {year}</span>
-            <a href={`${BASE}/rss.xml`} className="pg-ul">RSS</a>
             <a href="#top" className="pg-ul">TOP ↑</a>
           </span>
         </div>
@@ -64,7 +62,6 @@ export function PongFooter({ name }: { name: string }) {
         </span>
         <span style={{ display: 'flex', gap: 24 }}>
           <Link href="/" className="pg-ul">HOME</Link>
-          <a href={`${BASE}/rss.xml`} className="pg-ul">RSS</a>
         </span>
       </div>
     </footer>
