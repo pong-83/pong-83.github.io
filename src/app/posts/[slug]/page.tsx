@@ -11,6 +11,7 @@ import { KatexRenderer } from '@/components/KatexRenderer'
 import CodeHighlight from '@/components/CodeHighlight'
 import { createPostMetadata, createJsonLd, createBreadcrumbJsonLd } from '@/lib/seo'
 import { splitPostIntoSections } from '@/lib/sections'
+import { addLocalImageSizes } from '@/lib/notion-image-store'
 import { FALLBACK_POST_SLUGS } from '@/lib/fallback-data'
 import type { Metadata } from 'next'
 
@@ -81,7 +82,10 @@ export default async function PostPage({ params }: PostPageProps) {
     }
 
     // 제목1·제목2 기준으로 본문을 번호 붙은 섹션으로 나눔
-    const { introHtml, sections } = splitPostIntoSections(post.content, post.html)
+    const split = splitPostIntoSections(post.content, post.html)
+    // 섹션 HTML 은 블록에서 다시 그려서, 이미지 크기를 여기서 한 번 더 적어 줘요
+    const introHtml = addLocalImageSizes(split.introHtml)
+    const sections = split.sections.map((s) => ({ ...s, html: addLocalImageSizes(s.html) }))
 
     // 다음에 읽을 글: 이 글보다 먼저 쓴 글부터 3개
     let more: Awaited<ReturnType<typeof listPublishedPostsMemo>> = []
