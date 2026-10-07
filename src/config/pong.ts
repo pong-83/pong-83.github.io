@@ -27,3 +27,6 @@ export const PALETTE_STORAGE_KEY = 'pong-palette'
 
 /** 첫 화면이 그려지기 전에 저장된 컬러를 적용하는 스크립트 */
 export const PALETTE_BOOT_SCRIPT = `try{var p=localStorage.getItem('${PALETTE_STORAGE_KEY}');if(p)document.documentElement.dataset.palette=p}catch(e){}`
+
+/** 홈에서 ABOUT을 다시 누를 때 프로필 위치를 맞추라고 알리는 이벤트 */
+export const ABOUT_EVENT = 'pong:about'
