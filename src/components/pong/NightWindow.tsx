@@ -13,7 +13,7 @@ const NOON = 0.5 // 호의 꼭대기 (0은 왼쪽 끝, 1은 오른쪽 끝)
 const BUBBLE_MS = 1800
 
 type ViewTransitionDoc = Document & {
-  startViewTransition?: (update: () => void) => { ready: Promise<void> }
+  startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> }
 }
 
 function isDark() {
@@ -117,14 +117,20 @@ export function NightWindow() {
     root.classList.add('pg-vt')
     try {
       const t = doc.startViewTransition(apply)
+      let reveal: Animation | undefined
       t.ready
         .then(() => {
-          root.animate(
+          reveal = root.animate(
             { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${end}px at ${x}px ${y}px)`] },
-            { duration: 700, easing: 'cubic-bezier(.4,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
-          ).finished.finally(() => root.classList.remove('pg-vt'))
+            { duration: 700, easing: 'cubic-bezier(.4,0,.2,1)', fill: 'forwards', pseudoElement: '::view-transition-new(root)' }
+          )
         })
-        .catch(() => root.classList.remove('pg-vt'))
+        .catch(() => {})
+      // 전환이 완전히 끝난 뒤에 클래스를 떼요. 원이 다 퍼진 순간 떼면 브라우저 기본 페이드가 잠깐 돌아서 화면이 회색으로 깜빡여요
+      t.finished.finally(() => {
+        root.classList.remove('pg-vt')
+        reveal?.cancel()
+      })
     } catch {
       root.classList.remove('pg-vt')
       apply()
