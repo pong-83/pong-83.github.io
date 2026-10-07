@@ -129,6 +129,9 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   }
   const evCls = (p: PostListItem) => `pg-ev${filter === 'all' || p.label === filter ? '' : ' dim'}`
 
+  const [photoFailed, setPhotoFailed] = useState(false)
+  const hasPhoto = Boolean(settings.profileImage) && !photoFailed
+
   const socials = SOCIAL_LABELS.filter(([k]) => k !== 'email' && settings.socialLinks?.[k])
   const email = settings.socialLinks?.email
 
@@ -138,9 +141,9 @@ export function HomeView({ posts, settings }: HomeViewProps) {
         <div className="pg-hero-l">
           <div className="pg-photo-btn">
             <div className="pg-photo-frame">
-              {settings.profileImage ? (
+              {hasPhoto ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={settings.profileImage} alt={`${name} 프로필 사진`} referrerPolicy="no-referrer" />
+                <img src={settings.profileImage} alt="" referrerPolicy="no-referrer" onError={() => setPhotoFailed(true)} />
               ) : (
                 <>
                   <div className="pg-tint" aria-hidden="true" />
@@ -158,9 +161,9 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <span className="pg-chip" style={{ right: 24, bottom: 24 }}>0 KB</span>
                 </>
               )}
-              {settings.profileImage && <div className="pg-dots" aria-hidden="true" />}
+              {hasPhoto && <div className="pg-dots" aria-hidden="true" />}
             </div>
-            {settings.profileImage && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
+            {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
             <span className="pg-hi" aria-hidden="true">Hi, I&apos;m {name}</span>
           </div>
           <div id="about" style={{ scrollMarginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>

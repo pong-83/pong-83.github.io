@@ -222,7 +222,7 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
       // 기본값 설정 (각 속성별 안내 메시지)
       const defaultSettings: ProfileSettings = {
         name: '프로필 설정 DB의 Name 속성을 설정하세요',
-        profileImage: '/images/profile.jpg',
+        profileImage: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/images/profile.svg`,
         jobTitle: '프로필 설정 DB의 JobTitle 속성을 설정하세요',
         bio: '프로필 설정 DB의 Bio 속성을 설정하세요',
         homeTitle: '프로필 설정 DB의 HomeTitle 속성을 설정하세요',

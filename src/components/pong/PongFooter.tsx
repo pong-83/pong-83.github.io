@@ -1,28 +1,50 @@
 'use client'
 
 import Link from 'next/link'
+import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Star } from './Star'
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || ''
+const SPARKS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324]
 
 export function PongFooter({ name }: { name: string }) {
   const pathname = usePathname()
   const isHome = pathname === '/' || pathname === ''
   const year = new Date().getFullYear()
+  const [pops, setPops] = useState(0)
+  const [popping, setPopping] = useState(false)
+
+  useEffect(() => {
+    if (!popping) return
+    const t = window.setTimeout(() => setPopping(false), 1300)
+    return () => window.clearTimeout(t)
+  }, [popping, pops])
 
   if (isHome) {
     return (
       <footer className="pg-wrap pg-foot">
         <div className="pg-foot-in">
-          <a href="#top" className="pg-word" aria-label="맨 위로">
+          <button
+            type="button"
+            className={`pg-word${popping ? ' pop' : ''}`}
+            key={pops}
+            onClick={() => {
+              setPops((n) => n + 1)
+              setPopping(true)
+            }}
+          >
             {Array.from(name).map((ch, i) => (
-              <span key={i}>{ch}</span>
+              <span key={i} style={{ animationDelay: `${i * 0.07}s` }}>{ch}</span>
             ))}
-            <span style={{ marginLeft: 8, paddingBottom: '0.12em' }}>
+            <span className="pg-word-star" style={{ marginLeft: 8, paddingBottom: '0.12em' }}>
               <Star size={28} />
+              {popping &&
+                SPARKS.map((deg, i) => (
+                  <i key={i} className="pg-spark-dot" style={{ '--a': `${deg}deg`, '--d': `${70 + (i % 3) * 22}px` } as React.CSSProperties} />
+                ))}
             </span>
-          </a>
+          </button>
           <span style={{ display: 'flex', gap: 24 }}>
             <span>© {year}</span>
             <a href={`${BASE}/rss.xml`} className="pg-ul">RSS</a>
