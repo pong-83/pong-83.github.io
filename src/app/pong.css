@@ -330,3 +330,7 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 @media (prefers-reduced-motion: reduce) {
   .pg *, .pg *::before, .pg *::after { transition: none !important; animation: none !important; }
 }
+
+/* comments (giscus) */
+.pg-comments { margin-top: 56px; border-top: 1px solid var(--pg-ink); padding-top: 16px; }
+.pg-comments-h { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; margin: 0 0 20px; }

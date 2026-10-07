@@ -750,7 +750,7 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
             // 로컬 OG Image 우선 사용 (빌드 시 다운로드된 파일)
             // 로컬 파일이 없으면 Notion S3 URL 사용 (fallback)
             const notionOgImageUrl = props.OGImage?.files?.[0]?.file?.url || props.OGImage?.files?.[0]?.external?.url;
-            const ogImage = notionOgImageUrl ? '/og-images/default.jpg' : undefined;
+            const ogImage = notionOgImageUrl ? '/og-images/default.jpg' : '/images/share.png';
             const twitterHandle = props.TwitterHandle?.rich_text ? getPlainText(props.TwitterHandle.rich_text) : undefined;
             // Author: Person 타입 우선, 없으면 Text 타입 fallback
             const author = props.Author?.people?.[0]?.name ||

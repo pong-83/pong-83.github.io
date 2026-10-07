@@ -6,7 +6,7 @@ on:
       debug_mode:
         description: 'Enable debug mode'
         required: false
-        default: true
+        default: false
         type: boolean
       trigger:
         description: 'Trigger source'
