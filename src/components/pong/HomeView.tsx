@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import type { PostListItem, SiteSettings } from '@/services/notion/types'
 import { ABOUT_EVENT, NOW_PHRASES, TITLE_SUFFIX } from '@/config/pong'
@@ -87,6 +87,7 @@ const STICKERS = [
   '★ +1 HP',
 ]
 const STICKER_COUNT = STICKERS.length
+const STICKER_FADE_MS = 350 // .pg-hi 가 사라지는 시간(.3s)보다 조금 길게
 // 이메일을 누를 때마다 돌아가며 뜨는 말
 const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하면 돼요 ⌘V', '편지 기다릴게요 ☺']
 
@@ -149,6 +150,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const [sticker, setSticker] = useState(0)
   const [tapped, setTapped] = useState(false)
   const nextSticker = () => setSticker((n) => (n + 1) % STICKER_COUNT)
+  const stickerTimer = useRef(0)
+  useEffect(() => () => window.clearTimeout(stickerTimer.current), [])
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
 
   // ABOUT: 넓은 화면(사진과 정보가 나란히)에서는 프로필 맨 위, 좁은 화면에서는 이름에 맞춰요
@@ -194,7 +197,14 @@ export function HomeView({ posts, settings }: HomeViewProps) {
         <div className="pg-hero-l">
           <div
             className={`pg-photo-btn${tapped ? ' on' : ''}`}
-            onPointerEnter={(e) => e.pointerType === 'mouse' && nextSticker()}
+            // 마우스를 뗀 뒤 스티커가 다 사라지고 나서 다음 스티커로 바꿔 둬요.
+            // 올리는 순간에 바꾸면 이전 스티커가 한 프레임 비쳤다가 바뀌어 보여요
+            onPointerLeave={(e) => {
+              if (e.pointerType !== 'mouse') return
+              window.clearTimeout(stickerTimer.current)
+              stickerTimer.current = window.setTimeout(nextSticker, STICKER_FADE_MS)
+            }}
+            onPointerEnter={(e) => e.pointerType === 'mouse' && window.clearTimeout(stickerTimer.current)}
             onPointerDown={(e) => {
               if (e.pointerType === 'mouse') return
               setTapped(true)

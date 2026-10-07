@@ -257,6 +257,14 @@ html body.pg {
 .pg-wavy span { display: inline-block; white-space: pre; }
 @media (hover: hover) { .pg-sec:hover .pg-wavy span { animation: pg-hwave 1.2s ease-in-out infinite; } }
 @keyframes pg-hwave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+/* 폰: 섹션이 화면에 들어오면 소제목이 두 번 물결치고, 번호가 살짝 밀리고, 배경이 잠깐 비쳐요 */
+@media (hover: none) {
+  .pg-sec.seen { animation: pg-sec-glow 1.6s ease-out; }
+  .pg-sec.seen .pg-wavy span { animation: pg-hwave 1.2s ease-in-out 2; }
+  .pg-sec.seen .num { animation: pg-num-nudge 1.2s cubic-bezier(.2,.7,.2,1); }
+}
+@keyframes pg-sec-glow { 0% { background: transparent; } 25% { background: var(--pg-card); } 100% { background: transparent; } }
+@keyframes pg-num-nudge { 0%, 100% { transform: none; } 30%, 70% { transform: translateX(6px); } }
 .pg-tags { display: flex; gap: 6px 14px; flex-wrap: wrap; margin-top: 32px; }
 .pg-tags span { font-size: 14px; color: var(--pg-ink); }
 .pg-tags b { color: var(--pg-accent); font-weight: 700; margin-right: 1px; }
@@ -383,6 +391,8 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 @keyframes pg-egg-shadow { 14% { transform: scaleX(1.12); } 42%, 58% { transform: scaleX(.55); opacity: .5; } 80% { transform: scaleX(1.15); } }
 @keyframes pg-egg-hop { 14% { transform: scale(1.18,.78); } 42% { transform: translateY(-64px) scale(.88,1.16) rotate(-8deg); } 58% { transform: translateY(-70px) rotate(5deg); } 80% { transform: scale(1.16,.82); } 92% { transform: scale(.96,1.05); } }
 @keyframes pg-egg-dash { from { translate: 6vw 0; } to { translate: 100vw 0; } }
+/* 넓은 화면에서는 퐁이 너무 작아 보여서 두 배로 키워요 (픽셀이 깨지지 않게 정수배) */
+@media (min-width: 900px) { .pg-egg-run { scale: 2; transform-origin: 0 100%; } }
 @keyframes pg-egg-legs { from { background-position: -144px 0; } to { background-position: -1296px 0; } }
 .pg-egg-star { position: absolute; top: -24px; left: var(--x); animation: pg-egg-fall 2.4s ease-in var(--delay) forwards; }
 @keyframes pg-egg-fall { to { transform: translateY(110vh) rotate(540deg); } }
