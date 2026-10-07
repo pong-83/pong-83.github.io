@@ -70,17 +70,12 @@ export default async function AboutPage() {
           dangerouslySetInnerHTML={{ __html: JSON.stringify(personJsonLd) }}
         />
 
-        <article className="py-8 lg:py-12">
-          {/* 페이지 헤더 */}
-          <header className="mb-12">
-            <h1 className="text-4xl sm:text-5xl font-bold mb-4 text-gray-900 dark:text-white">
-              {aboutPage.title}
-            </h1>
-          </header>
-
+        <article className="pg-wrap pg-post-head" style={{ paddingBottom: 96 }}>
+          <h1>{aboutPage.title}</h1>
           {/* Notion 콘텐츠 렌더링 */}
           <div
-            className="prose prose-gray max-w-none dark:prose-invert"
+            className="pg-body pg-article"
+            style={{ borderTop: 0, marginTop: 24 }}
             dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
         </article>

@@ -1,24 +1,17 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import "./pong.css";
 import "katex/dist/katex.min.css";
-import { ProfileSidebar } from "@/components/ProfileSidebar";
-import { MobileMenu } from "@/components/MobileMenu";
-import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { GoogleAdSense } from "@/components/GoogleAdSense";
-import { getSiteSettingsMemo, getSiteConfigMemo } from "@/lib/request-memo";
+import { SiteHeader } from "@/components/pong/SiteHeader";
+import { PongFooter } from "@/components/pong/PongFooter";
+import { PALETTE_BOOT_SCRIPT } from "@/config/pong";
+import { getSiteSettingsMemo, getSiteConfigMemo, listPublishedPostsMemo } from "@/lib/request-memo";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
-});
+const FONTS_URL =
+  "https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans+KR:wght@400;500;600&family=JetBrains+Mono:wght@400&display=swap";
 
 export async function generateMetadata(): Promise<Metadata> {
   const siteConfig = await getSiteConfigMemo();
@@ -69,18 +62,23 @@ export default async function RootLayout({
   const settings = await getSiteSettingsMemo();
   const siteConfig = await getSiteConfigMemo();
 
-  // 프로필 데이터 변환
-  const profile = {
-    name: settings.name,
-    photoUrl: settings.profileImage,
-    bio: settings.bio,
-    jobTitle: settings.jobTitle,
-    socialLinks: settings.socialLinks,
-  };
+  const name = settings.name || 'pong';
+  let slugs: string[] = [];
+  try {
+    slugs = (await listPublishedPostsMemo()).map((post) => post.slug);
+  } catch {
+    slugs = [];
+  }
 
   return (
-    <html lang="ko" suppressHydrationWarning>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+    <html lang="ko" data-palette="mono" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: PALETTE_BOOT_SCRIPT }} />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="stylesheet" href={FONTS_URL} />
+      </head>
+      <body className="pg antialiased">
         {/* Google Analytics - Notion 설정에 따라 조건부 렌더링 */}
         {siteConfig.enableAnalytics && siteConfig.ga4MeasurementId && (
           <GoogleAnalytics measurementId={siteConfig.ga4MeasurementId} />
@@ -91,31 +89,12 @@ export default async function RootLayout({
           <GoogleAdSense publisherId={siteConfig.adsensePublisherId} />
         )}
 
-        <ThemeProvider>
-        <div className="min-h-screen bg-white dark:bg-gray-900 transition-colors">
-          <div className="mx-auto max-w-2xl sm:max-w-4xl lg:max-w-6xl xl:max-w-7xl 2xl:max-w-[1600px] px-4 sm:px-6 lg:px-8 xl:px-12">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 lg:gap-12 xl:gap-16">
-                {/* 좌측 사이드바 영역 */}
-                <aside className="lg:col-span-4 xl:col-span-4 lg:pr-8 xl:pr-12 relative">
-                  {/* 스타일리쉬한 세로선 - 프로필부터 copyright까지 */}
-                  <div className="hidden lg:block absolute right-0 top-12 w-px h-[calc(100%-6rem)] bg-gradient-to-b from-transparent via-gray-300 dark:via-gray-700 to-transparent"></div>
-                  <div className="sticky top-4 pt-4">
-                    <ProfileSidebar
-                      profile={profile}
-                    />
-                  </div>
-                </aside>
-
-                {/* 우측 메인 콘텐츠 영역 */}
-                <main className="lg:col-span-8 xl:col-span-8">
-                  {children}
-                  <SiteFooter />
-                </main>
-              </div>
-            </div>
-
-            {/* 모바일 메뉴 */}
-            <MobileMenu />
+        {/* pong 테마는 밝은 화면 하나로 디자인되어 있어 라이트 모드로 고정 */}
+        <ThemeProvider defaultTheme="light" storageKey="pong-theme">
+          <div id="top" style={{ minHeight: '100vh' }}>
+            <SiteHeader name={name} slugs={slugs} />
+            {children}
+            <PongFooter name={name} />
           </div>
         </ThemeProvider>
       </body>
