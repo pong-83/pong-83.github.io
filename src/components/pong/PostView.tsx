@@ -67,6 +67,24 @@ export function PostView({
   const [active, setActive] = useState('')
 
   // 읽은 만큼 채우기 + 지금 읽는 섹션 표시
+  // 손가락으로 쓰는 기기에는 마우스 올리기가 없어서, 섹션이 화면에 들어올 때 소제목 효과를 한 번 보여줘요.
+  // 클래스만 붙여서 다시 그리지 않아요(본문 이미지가 다시 불리지 않게)
+  useEffect(() => {
+    if (!window.matchMedia('(hover: none)').matches || !('IntersectionObserver' in window)) return
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue
+          e.target.classList.add('seen')
+          io.unobserve(e.target)
+        }
+      },
+      { rootMargin: '0px 0px -35% 0px' }
+    )
+    document.querySelectorAll('.pg-sec').forEach((el) => io.observe(el))
+    return () => io.disconnect()
+  }, [sections])
+
   useEffect(() => {
     const onScroll = () => {
       const el = document.documentElement
@@ -266,7 +284,7 @@ export function PostView({
               <span style={{ fontSize: 12, fontWeight: 600 }}>다 읽었어요.</span>
             )
           ) : (
-            <span className="rm" style={{ fontSize: 12, color: '#5C5C5C' }}>
+            <span className="rm" style={{ fontSize: 12, color: 'var(--pg-sub)' }}>
               {pct === 0 ? '스크롤하면 읽은 만큼 채워져요' : `남은 시간 약 ${remain}분`}
             </span>
           )}

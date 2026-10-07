@@ -7,7 +7,7 @@ import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { GoogleAdSense } from "@/components/GoogleAdSense";
 import { SiteHeader } from "@/components/pong/SiteHeader";
 import { PongFooter } from "@/components/pong/PongFooter";
-import { PALETTE_BOOT_SCRIPT } from "@/config/pong";
+import { PALETTE_BOOT_SCRIPT, THEME_STORAGE_KEY } from "@/config/pong";
 import { getSiteSettingsMemo, getSiteConfigMemo, listPublishedPostsMemo } from "@/lib/request-memo";
 
 const FONTS_URL =
@@ -90,8 +90,8 @@ export default async function RootLayout({
           <GoogleAdSense publisherId={siteConfig.adsensePublisherId} />
         )}
 
-        {/* pong 테마는 밝은 화면 하나로 디자인되어 있어 라이트 모드로 고정 */}
-        <ThemeProvider defaultTheme="light" storageKey="pong-theme">
+        {/* 처음엔 기기 설정을 따르고, 헤더의 줄을 당기면 바꾼 테마를 기억해요 */}
+        <ThemeProvider defaultTheme="system" storageKey={THEME_STORAGE_KEY}>
           <div id="top" style={{ minHeight: '100vh' }}>
             <SiteHeader name={name} slugs={slugs} />
             {children}

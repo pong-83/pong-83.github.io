@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Star } from './Star'
+import { NightWindow } from './NightWindow'
 
 const SPARKS = [0, 36, 72, 108, 144, 180, 216, 252, 288, 324]
 
@@ -44,6 +45,7 @@ export function PongFooter({ name }: { name: string }) {
                 ))}
             </span>
           </button>
+          <NightWindow />
           <span style={{ display: 'flex', gap: 24 }}>
             <span>© {year}</span>
             <a href="#top" className="pg-ul">TOP ↑</a>
@@ -60,6 +62,7 @@ export function PongFooter({ name }: { name: string }) {
           {name}
           <Star size={10} /> © {year}
         </span>
+        <NightWindow />
         <span style={{ display: 'flex', gap: 24 }}>
           <Link href="/" className="pg-ul">HOME</Link>
         </span>

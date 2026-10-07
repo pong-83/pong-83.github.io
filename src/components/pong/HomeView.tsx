@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import Link from 'next/link'
 import type { PostListItem, SiteSettings } from '@/services/notion/types'
 import { ABOUT_EVENT, NOW_PHRASES, TITLE_SUFFIX } from '@/config/pong'
@@ -70,6 +70,36 @@ function useTypewriter(phrases: string[]): string {
   return phrases[i].slice(0, Math.max(0, shown))
 }
 
+/** 검색어를 띄어쓰기로 나눠서, 모든 낱말이 제목·설명·태그·폴더 어딘가에 있으면 찾은 글로 쳐요 */
+function searchWords(q: string): string[] {
+  return q.toLowerCase().split(/\s+/).filter(Boolean)
+}
+
+function matches(p: PostListItem, words: string[]): boolean {
+  if (words.length === 0) return true
+  const hay = [p.title, p.description, p.label, ...(p.tags || [])].filter(Boolean).join(' ').toLowerCase()
+  return words.every((w) => hay.includes(w))
+}
+
+/** 제목에서 찾은 낱말에 형광펜을 칠해요 */
+function highlight(text: string, words: string[]): ReactNode {
+  if (words.length === 0) return text
+  const lower = text.toLowerCase()
+  const marks = new Array(text.length).fill(false)
+  words.forEach((w) => {
+    for (let i = lower.indexOf(w); i >= 0; i = lower.indexOf(w, i + 1)) marks.fill(true, i, i + w.length)
+  })
+  const out: ReactNode[] = []
+  let i = 0
+  while (i < text.length) {
+    let j = i
+    while (j < text.length && marks[j] === marks[i]) j++
+    out.push(marks[i] ? <mark key={i}>{text.slice(i, j)}</mark> : text.slice(i, j))
+    i = j
+  }
+  return out
+}
+
 interface HomeViewProps {
   posts: PostListItem[]
   settings: SiteSettings
@@ -87,6 +117,7 @@ const STICKERS = [
   '★ +1 HP',
 ]
 const STICKER_COUNT = STICKERS.length
+const STICKER_FADE_MS = 350 // .pg-hi 가 사라지는 시간(.3s)보다 조금 길게
 // 이메일을 누를 때마다 돌아가며 뜨는 말
 const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하면 돼요 ⌘V', '편지 기다릴게요 ☺']
 
@@ -110,7 +141,23 @@ export function HomeView({ posts, settings }: HomeViewProps) {
 
   const [filter, setFilter] = useState('all')
   const [hover, setHover] = useState(-1)
-  const visible = posts.filter((p) => filter === 'all' || p.label === filter)
+  const [query, setQuery] = useState('')
+  const searchRef = useRef<HTMLInputElement>(null)
+  const words = searchWords(query)
+  const visible = posts.filter((p) => (filter === 'all' || p.label === filter) && matches(p, words))
+
+  // 키보드 / 를 누르면 검색칸으로 가요
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== '/' || e.metaKey || e.ctrlKey || e.altKey) return
+      const t = e.target as HTMLElement | null
+      if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return
+      e.preventDefault()
+      searchRef.current?.focus()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
   const cur = (hover >= 0 && visible.includes(posts[hover]) ? posts[hover] : visible[0]) || null
   const curNo = cur ? visible.indexOf(cur) + 1 : 0
   const curTilt = cur ? TILT[posts.indexOf(cur) % TILT.length] : -2
@@ -149,6 +196,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const [sticker, setSticker] = useState(0)
   const [tapped, setTapped] = useState(false)
   const nextSticker = () => setSticker((n) => (n + 1) % STICKER_COUNT)
+  const stickerTimer = useRef(0)
+  useEffect(() => () => window.clearTimeout(stickerTimer.current), [])
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
 
   // ABOUT: 넓은 화면(사진과 정보가 나란히)에서는 프로필 맨 위, 좁은 화면에서는 이름에 맞춰요
@@ -194,7 +243,14 @@ export function HomeView({ posts, settings }: HomeViewProps) {
         <div className="pg-hero-l">
           <div
             className={`pg-photo-btn${tapped ? ' on' : ''}`}
-            onPointerEnter={(e) => e.pointerType === 'mouse' && nextSticker()}
+            // 마우스를 뗀 뒤 스티커가 다 사라지고 나서 다음 스티커로 바꿔 둬요.
+            // 올리는 순간에 바꾸면 이전 스티커가 한 프레임 비쳤다가 바뀌어 보여요
+            onPointerLeave={(e) => {
+              if (e.pointerType !== 'mouse') return
+              window.clearTimeout(stickerTimer.current)
+              stickerTimer.current = window.setTimeout(nextSticker, STICKER_FADE_MS)
+            }}
+            onPointerEnter={(e) => e.pointerType === 'mouse' && window.clearTimeout(stickerTimer.current)}
             onPointerDown={(e) => {
               if (e.pointerType === 'mouse') return
               setTapped(true)
@@ -349,6 +405,35 @@ export function HomeView({ posts, settings }: HomeViewProps) {
 
         <div className="pg-files">
           <div className="pg-list">
+            <label className={`pg-search${query ? ' has-q' : ''}`}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">
+                <circle cx="10.5" cy="10.5" r="6.5" />
+                <path d="M15.5 15.5 L21 21" />
+              </svg>
+              <input
+                ref={searchRef}
+                type="search"
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value)
+                  setHover(-1)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Escape') {
+                    setQuery('')
+                    e.currentTarget.blur()
+                  }
+                }}
+                placeholder="글 찾기"
+                aria-label="글 찾기"
+                enterKeyHint="search"
+              />
+              {query ? (
+                <span className="pg-search-n" role="status">{visible.length}개</span>
+              ) : (
+                <kbd aria-hidden="true">/</kbd>
+              )}
+            </label>
             <div className="pg-list-head">
               <span style={{ flex: '1 1 auto' }}>NAME</span>
               <span className="pg-kind" style={{ color: 'inherit' }}>KIND</span>
@@ -369,7 +454,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                       <path d="M1 1 H12 L17 6 V21 H1 Z" fill="#ffffff" stroke="#111111" strokeWidth="1" />
                       <path d="M12 1 V6 H17" fill="none" stroke="#111111" strokeWidth="1" />
                     </svg>
-                    <span className="ttl">{p.title}</span>
+                    <span className="ttl">{highlight(p.title, words)}</span>
                     <span className="arrow" aria-hidden="true">→</span>
                   </span>
                   <span className="pg-kind">
@@ -393,10 +478,25 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <circle cx="39" cy="23" r="1.6" fill="#111111" />
                 </svg>
                 <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>
-                  {filter === 'all' ? '아직 올린 글이 없어요' : `${filter} 폴더는 아직 비어 있어요`}
+                  {words.length > 0
+                    ? `‘${query.trim()}’ 글은 못 찾았어요`
+                    : filter === 'all'
+                      ? '아직 올린 글이 없어요'
+                      : `${filter} 폴더는 아직 비어 있어요`}
                 </span>
-                <span style={{ fontSize: 13, color: '#5C5C5C' }}>0 items · 0 KB</span>
-                {filter !== 'all' && (
+                <span style={{ fontSize: 13, color: 'var(--pg-sub)' }}>0 items · 0 KB</span>
+                {words.length > 0 ? (
+                  <button
+                    type="button"
+                    className="pg-btn"
+                    onClick={() => {
+                      if (filter !== 'all') setFilter('all')
+                      else setQuery('')
+                    }}
+                  >
+                    {filter !== 'all' ? 'All 폴더에서 찾기' : '검색 지우기'}
+                  </button>
+                ) : filter !== 'all' && (
                   <button type="button" className="pg-btn" onClick={() => setFilter('all')}>
                     All 폴더 열기
                   </button>
@@ -486,7 +586,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
             <div className="pg-cal-empty">
               <Star size={28} className="pg-bob" />
               <span style={{ fontSize: 17, fontWeight: 600, letterSpacing: '-0.01em' }}>{mm + 1}월은 쉬어 갔어요</span>
-              <span style={{ fontSize: 13, color: '#5C5C5C' }}>이 달에 올린 글이 없어요.</span>
+              <span style={{ fontSize: 13, color: 'var(--pg-sub)' }}>이 달에 올린 글이 없어요.</span>
               {posts.length > 0 && (
                 <button type="button" className="pg-btn" style={{ marginTop: 4 }} onClick={() => setMonthOff(0)}>
                   글 있는 달로 가기 →
