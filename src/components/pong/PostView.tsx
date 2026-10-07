@@ -170,7 +170,7 @@ export function PostView({
           {tags.length > 0 && (
             <div className="pg-tags">
               {tags.map((t) => (
-                <span key={t}># {t}</span>
+                <span key={t}><b>#</b>{t}</span>
               ))}
             </div>
           )}

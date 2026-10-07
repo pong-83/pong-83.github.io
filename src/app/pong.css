@@ -250,8 +250,9 @@ html body.pg {
 .pg-wavy span { display: inline-block; white-space: pre; }
 .pg-sec:hover .pg-wavy span { animation: pg-hwave 1.2s ease-in-out infinite; }
 @keyframes pg-hwave { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-.pg-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; }
-.pg-tags span { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 6px; background: #eaeae6; font-size: 13px; line-height: 1; }
+.pg-tags { display: flex; gap: 6px 14px; flex-wrap: wrap; margin-top: 32px; }
+.pg-tags span { font-size: 14px; color: var(--pg-ink); }
+.pg-tags b { color: var(--pg-accent); font-weight: 700; margin-right: 1px; }
 
 /* 노션 본문 */
 .pg-body { min-width: 0; display: flex; flex-direction: column; gap: 20px; max-width: 720px; color: var(--pg-ink); }
@@ -391,3 +392,20 @@ button.pg-light { background: #ff5f57; cursor: pointer; }
 .pg-article details.toggle-heading-block[open] > summary::after { content: '접기 −'; }
 .pg-article details.toggle-heading-block > .toggle-content { margin: 14px 0 0 !important; animation: pg-unfold .45s cubic-bezier(.2,.7,.2,1); transform-origin: top; }
 @keyframes pg-unfold { from { opacity: 0; transform: perspective(600px) rotateX(-18deg) translateY(-6px); } }
+
+
+
+
+/* 유리 방울 커서 (GlassCursor). 사이트 컬러와 상관없이 같은 푸른 유리예요 */
+html.pg-cursor-on, html.pg-cursor-on * { cursor: none !important; }
+html.pg-cursor-on :is(input, textarea, select, [contenteditable='true']) { cursor: text !important; }
+.pg-glass { position: fixed; left: 0; top: 0; z-index: 2147483647; width: 18px; height: 18px; margin: -9px 0 0 -9px; border-radius: 50%; pointer-events: none; opacity: 0;
+  background: linear-gradient(145deg, rgba(255,255,255,.55), rgba(123,140,255,.18));
+  backdrop-filter: blur(3px) saturate(1.4); -webkit-backdrop-filter: blur(3px) saturate(1.4);
+  border: 1.5px solid rgba(255,255,255,.9);
+  box-shadow: 0 0 0 1px rgba(91,110,255,.35), 0 0 14px rgba(91,110,255,.35), inset 0 0 6px rgba(255,255,255,.7);
+  transition: width .25s cubic-bezier(.2,.8,.2,1), height .25s cubic-bezier(.2,.8,.2,1), margin .25s cubic-bezier(.2,.8,.2,1), opacity .2s, scale .15s; }
+.pg-glass.is-in { opacity: 1; }
+.pg-glass.is-big { width: 46px; height: 46px; margin: -23px 0 0 -23px; }
+.pg-glass.is-down { scale: .85; }
+.pg-glass.is-hidden { opacity: 0; }
