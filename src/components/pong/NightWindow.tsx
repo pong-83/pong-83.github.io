@@ -1,18 +1,16 @@
 'use client'
 
-import { useEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { useTheme } from '@/components/ThemeProvider'
 
 const BASE = process.env.NEXT_PUBLIC_BASE_PATH || ''
 
 // 창문 안에서 해와 달이 지나가는 호: 창틀 아래 가운데를 중심으로 한 반원
-const ARC_CX = 60
-const ARC_CY = 104
-const ARC_R = 72
+const ARC_CX = 33
+const ARC_CY = 58
+const ARC_R = 36
 const NOON = 0.5 // 호의 꼭대기 (0은 왼쪽 끝, 1은 오른쪽 끝)
-const SET_AT = 0.72 // 여기보다 더 끌고 놓으면 해(달)가 져요
-const DRAG_SPAN = 130 // 이만큼 옆으로 끌면 호의 끝까지 가요(px)
-const BUBBLE_MS = 2200
+const BUBBLE_MS = 1800
 
 type ViewTransitionDoc = Document & {
   startViewTransition?: (update: () => void) => { ready: Promise<void> }
@@ -31,21 +29,19 @@ const easeIn = (t: number) => t * t
 const easeOut = (t: number) => 1 - (1 - t) * (1 - t) * (1 - t)
 
 /**
- * 푸터 창문과 퐁. 창문의 해를 옆으로 끌어서 지게 하면 달이 뜨면서 다크 모드가 되고 퐁이 잠들어요.
- * 달을 지게 하면 다시 해가 뜨고 퐁이 깨요. 창문이나 퐁을 눌러도 돼요.
+ * 푸터의 창문과 퐁. 누르면 퐁이 하품하고 해가 옆으로 져요. 달이 뜨면서 다크 모드가 되고 퐁은 잠들어요.
+ * 다시 누르면 달이 지고 해가 떠오르면서 퐁이 깜짝 놀라 깨요.
  */
 export function NightWindow() {
   const { setTheme } = useTheme()
   const [dark, setDark] = useState(false)
   const [bubble, setBubble] = useState<{ text: string; id: number } | null>(null)
-  const win = useRef<HTMLDivElement>(null)
-  const orb = useRef<HTMLButtonElement>(null)
+  const win = useRef<HTMLSpanElement>(null)
+  const orb = useRef<HTMLSpanElement>(null)
   const pong = useRef<HTMLSpanElement>(null)
-  const pos = useRef(NOON)
   const busy = useRef(false)
   const raf = useRef(0)
-  const bubbleTimer = useRef(0)
-  const drag = useRef({ active: false, startX: 0, startP: NOON, moved: false })
+  const timers = useRef<number[]>([])
 
   useEffect(() => {
     // 부트 스크립트가 붙인 클래스를 따라가고, 기기 설정이 바뀔 때도 맞춰요
@@ -53,22 +49,23 @@ export function NightWindow() {
     sync()
     const mo = new MutationObserver(sync)
     mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+    const pending = timers.current
     return () => {
       mo.disconnect()
       cancelAnimationFrame(raf.current)
-      window.clearTimeout(bubbleTimer.current)
+      pending.forEach((t) => window.clearTimeout(t))
     }
   }, [])
 
-  // 리액트 상태 대신 스타일만 바꿔서, 끄는 동안 화면을 다시 그리지 않아요
+  const later = (fn: () => void, ms: number) => {
+    timers.current.push(window.setTimeout(fn, ms))
+  }
+
+  // 리액트 상태 대신 스타일만 바꿔서, 움직이는 동안 화면을 다시 그리지 않아요
   const place = (p: number) => {
-    pos.current = p
     const [x, y] = arc(p)
     orb.current?.style.setProperty('--ox', `${x}px`)
     orb.current?.style.setProperty('--oy', `${y}px`)
-    // 해가 기울수록 퐁도 꾸벅꾸벅 기울어요 (밤엔 달이 기울면 뒤척여요)
-    const lean = Math.min(1, Math.max(0, p - NOON) / (1 - NOON))
-    if (pong.current) pong.current.style.transform = lean ? `rotate(${(isDark() ? 6 : -9) * lean}deg) translateY(${lean * 3}px)` : ''
   }
 
   const run = (from: number, to: number, ms: number, ease: (t: number) => number, done?: () => void) => {
@@ -83,17 +80,16 @@ export function NightWindow() {
     raf.current = requestAnimationFrame(step)
   }
 
-  const say = (text: string) => {
-    window.clearTimeout(bubbleTimer.current)
-    setBubble({ text, id: Date.now() })
-    bubbleTimer.current = window.setTimeout(() => setBubble(null), BUBBLE_MS)
+  const say = (text: string, ms = BUBBLE_MS) => {
+    const id = Date.now()
+    setBubble({ text, id })
+    later(() => setBubble((b) => (b?.id === id ? null : b)), ms)
   }
 
-  const replay = (cls: 'hop' | 'stir') => {
+  const act = (cls: 'yawn' | 'startle' | 'stir' | 'hop') => {
     const node = pong.current
     if (!node) return
-    node.style.transform = ''
-    node.classList.remove('hop', 'stir')
+    node.classList.remove('yawn', 'startle', 'stir', 'hop')
     void node.offsetWidth
     node.classList.add(cls)
   }
@@ -135,95 +131,49 @@ export function NightWindow() {
     }
   }
 
-  // 해(달)가 오른쪽으로 넘어가 지고, 테마가 바뀐 뒤 새 달(해)이 왼쪽에서 떠올라요
-  const setOrb = () => {
+  // 누르면: (낮) 하품 → 해가 옆으로 짐 → 불이 꺼지고 달이 떠오름 → 쿨쿨
+  //        (밤) 뒤척임 → 달이 짐 → 불이 켜지고 해가 떠오름 → 깜짝 놀라 깸
+  const toggle = () => {
     if (busy.current) return
     busy.current = true
-    const from = pos.current
-    run(from, 1.15, 260 + (1.15 - from) * 400, easeIn, () => {
-      const willSleep = !isDark()
-      switchTheme()
-      if (willSleep) say('zzZ')
-      else {
-        say('!')
-        replay('hop')
-      }
-      run(-0.15, NOON, 950, easeOut, () => {
-        busy.current = false
+    const toNight = !isDark()
+    act(toNight ? 'yawn' : 'stir')
+    say(toNight ? '하암…' : '음…?', 900)
+    later(() => {
+      run(NOON, 1.18, 620, easeIn, () => {
+        switchTheme()
+        run(-0.18, NOON, 900, easeOut, () => {
+          busy.current = false
+        })
+        later(() => {
+          if (toNight) say('zzZ')
+          else {
+            act('startle')
+            say('앗, 아침!')
+          }
+        }, 380)
       })
-    })
-  }
-
-  const onPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (e.button !== 0 || busy.current) return
-    cancelAnimationFrame(raf.current)
-    drag.current = { active: true, startX: e.clientX, startP: pos.current, moved: false }
-    e.currentTarget.setPointerCapture(e.pointerId)
-    e.currentTarget.classList.add('is-dragging')
-  }
-  const onPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const d = drag.current
-    if (!d.active) return
-    const dx = e.clientX - d.startX
-    if (Math.abs(dx) > 4) d.moved = true
-    // 오른쪽으로만 지고, 왼쪽으로는 살짝만 밀려요
-    place(Math.min(0.97, Math.max(NOON - 0.08, d.startP + dx / DRAG_SPAN)))
-  }
-  const onPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
-    const d = drag.current
-    if (!d.active) return
-    d.active = false
-    e.currentTarget.classList.remove('is-dragging')
-    if (!d.moved || pos.current >= SET_AT) {
-      setOrb()
-      return
-    }
-    // 덜 끌었으면 제자리로 돌아가요
-    run(pos.current, NOON, 420, easeOut)
-  }
-
-  const onPong = () => {
-    if (isDark()) {
-      replay('stir')
-      say('5분만…')
-    } else {
-      replay('hop')
-      say('hi!')
-    }
+    }, 420)
   }
 
   return (
-    <div
+    <button
+      type="button"
       className="pg-room"
+      onClick={toggle}
+      aria-label={dark ? '눌러서 불 켜기 (퐁 깨우기)' : '눌러서 불 끄기 (퐁 재우기)'}
+      aria-pressed={dark}
       style={{ '--awake': `url(${BASE}/images/mini-awake.png)`, '--asleep': `url(${BASE}/images/mini-asleep.png)` } as CSSProperties}
     >
-      <div
-        ref={win}
-        className="pg-window"
-        onPointerDown={onPointerDown}
-        onPointerMove={onPointerMove}
-        onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
-      >
-        <span className="pg-sky" aria-hidden="true">
-          <i />
+      <span ref={win} className="pg-window" aria-hidden="true">
+        <span className="pg-sky">
           <i />
           <i />
           <i />
         </span>
-        <button
-          ref={orb}
-          type="button"
-          className="pg-orb"
-          aria-label={dark ? '달을 지게 해서 불 켜기' : '해를 지게 해서 불 끄기'}
-          aria-pressed={dark}
-          // 마우스와 손가락은 창문이 처리하고, 키보드(Enter, Space)만 여기서 받아요
-          onClick={(e) => {
-            if (e.detail === 0) setOrb()
-          }}
-        />
-      </div>
-      <span ref={pong} className="pg-room-pong" aria-hidden="true" onClick={onPong} />
+        <span ref={orb} className="pg-orb" />
+      </span>
+      <span ref={pong} className="pg-room-pong" aria-hidden="true" />
       {bubble && (
         <span key={bubble.id} className="pg-bubble" aria-hidden="true">
           {bubble.text}
@@ -235,7 +185,7 @@ export function NightWindow() {
         <b>Z</b>
       </span>
       {dark && <Torch />}
-    </div>
+    </button>
   )
 }
 
