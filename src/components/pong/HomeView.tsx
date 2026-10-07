@@ -75,6 +75,10 @@ interface HomeViewProps {
   settings: SiteSettings
 }
 
+const STICKER_COUNT = 4
+// 이메일을 누를 때마다 돌아가며 뜨는 말
+const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하면 돼요 ⌘V', '편지 기다릴게요 ☺']
+
 export function HomeView({ posts, settings }: HomeViewProps) {
   const name = settings.name || 'pong'
   const typed = useTypewriter(NOW_PHRASES)
@@ -130,6 +134,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const evCls = (p: PostListItem) => `pg-ev${filter === 'all' || p.label === filter ? '' : ' dim'}`
 
   const [photoFailed, setPhotoFailed] = useState(false)
+  // 사진에 마우스를 올릴 때마다 스티커 모양이 바뀜
+  const [sticker, setSticker] = useState(0)
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
 
   // ABOUT: 넓은 화면(사진과 정보가 나란히)에서는 프로필 맨 위, 좁은 화면에서는 이름에 맞춰요
@@ -154,12 +160,26 @@ export function HomeView({ posts, settings }: HomeViewProps) {
 
   const socials = SOCIAL_LABELS.filter(([k]) => k !== 'email' && settings.socialLinks?.[k])
   const email = settings.socialLinks?.email
+  const emailText = email?.replace(/^mailto:/, '') ?? ''
+  const [copied, setCopied] = useState(false)
+  const [copyCount, setCopyCount] = useState(0)
+  const copyEmail = async () => {
+    try {
+      await navigator.clipboard.writeText(emailText)
+    } catch {
+      window.location.href = `mailto:${emailText}`
+      return
+    }
+    setCopyCount((n) => n + 1)
+    setCopied(true)
+    window.setTimeout(() => setCopied(false), 1600)
+  }
 
   return (
     <>
       <section className="pg-wrap pg-hero">
         <div className="pg-hero-l">
-          <div className="pg-photo-btn">
+          <div className="pg-photo-btn" onMouseEnter={() => setSticker((n) => (n + 1) % STICKER_COUNT)}>
             <div className={`pg-photo-frame${hasPhoto ? ' has-photo' : ''}`}>
               {hasPhoto ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -181,9 +201,12 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <span className="pg-chip" style={{ right: 24, bottom: 24 }}>0 KB</span>
                 </>
               )}
+              {hasPhoto && <div className="pg-star-dots" aria-hidden="true" />}
             </div>
             {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
-            <span className="pg-hi" aria-hidden="true">Hi, I&apos;m {name}</span>
+            <span className={`pg-hi s${sticker}`} aria-hidden="true">
+              {sticker === 3 ? 'Hi!' : <>Hi, I&apos;m {name}</>}
+            </span>
           </div>
           <div id="about" style={{ scrollMarginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
             <h1 className="pg-name">
@@ -203,16 +226,22 @@ export function HomeView({ posts, settings }: HomeViewProps) {
           {settings.bio && (
             <div>
               <span className="pg-label">ABOUT</span>
-              <span style={{ maxWidth: 460, whiteSpace: 'pre-line' }}>{settings.bio}</span>
+              <span style={{ maxWidth: 460 }}>
+                <span style={{ whiteSpace: 'pre-line' }}>{settings.bio}</span>{' '}
+                <Link href="/about" className="pg-more">
+                  더 알아보기 →
+                </Link>
+              </span>
             </div>
           )}
           {email && (
             <div>
               <span className="pg-label">CONTACT</span>
               <span>
-                <a href={email.startsWith('mailto:') ? email : `mailto:${email}`} className="pg-ul">
-                  {email.replace(/^mailto:/, '')}
-                </a>
+                <button type="button" className={`pg-copy${copied ? ' done' : ''}`} onClick={copyEmail} title="눌러서 복사">
+                  <span className="pg-ul">{emailText}</span>
+                  <span className="pg-copied" role="status">{copied ? COPIED_LINES[(copyCount - 1) % COPIED_LINES.length] : ''}</span>
+                </button>
               </span>
             </div>
           )}
