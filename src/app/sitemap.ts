@@ -17,13 +17,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // 정적 페이지
   const staticPages: MetadataRoute.Sitemap = [
     {
-      url: baseUrl,
+      url: `${baseUrl}/`,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1.0,
     },
     {
-      url: `${baseUrl}/about`,
+      url: `${baseUrl}/about/`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.8,
@@ -35,7 +35,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     const posts = await listPublishedPostsMemo()
 
     const postPages: MetadataRoute.Sitemap = posts.map((post) => ({
-      url: `${baseUrl}/posts/${post.slug}`,
+      url: `${baseUrl}/posts/${post.slug}/`,
       lastModified: post.date ? new Date(post.date) : new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
@@ -45,7 +45,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   } catch {
     // Fallback: 더미 데이터로 sitemap 생성
     const fallbackPages: MetadataRoute.Sitemap = FALLBACK_POST_SLUGS.map((slug) => ({
-      url: `${baseUrl}/posts/${slug}`,
+      url: `${baseUrl}/posts/${slug}/`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
