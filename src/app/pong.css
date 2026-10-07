@@ -82,15 +82,27 @@ html body.pg {
 .pg-photo-btn:hover .pg-dots { opacity: 0; }
 .pg-tint { position: absolute; inset: 0; opacity: 0; background: color-mix(in srgb, var(--pg-point) 65%, #ffffff); transition: opacity .35s ease; }
 .pg-photo-btn:hover .pg-tint { opacity: 1; }
-.pg-hi { position: absolute; right: -12px; top: 48px; z-index: 2; background: var(--pg-point); padding: 6px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; opacity: 0; transform: translateY(8px) rotate(-6deg); transition: all .3s cubic-bezier(.2,.7,.2,1); }
-.pg-photo-btn:hover .pg-hi { opacity: 1; transform: translateY(0) rotate(-6deg); }
+.pg-hi { --r: -6deg; position: absolute; right: -12px; top: 48px; z-index: 2; background: var(--pg-point); color: var(--pg-ink); padding: 6px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; opacity: 0; transform: translateY(8px) rotate(var(--r)); transition: opacity .3s cubic-bezier(.2,.7,.2,1), transform .3s cubic-bezier(.2,.7,.2,1); }
+.pg-photo-btn:hover .pg-hi { opacity: 1; transform: translateY(0) rotate(var(--r)); }
+/* 마우스를 올릴 때마다 바뀌는 스티커 모양 */
+.pg-hi.s1 { --r: -3deg; right: auto; left: -16px; top: auto; bottom: 64px; background: #fff; border: 1.5px solid var(--pg-ink); border-radius: 999px; padding: 8px 16px; box-shadow: 3px 3px 0 var(--pg-ink); }
+.pg-hi.s2 { --r: 4deg; top: 24px; right: 20px; background: var(--pg-ink); color: #fff; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 12px; letter-spacing: 0.02em; padding: 6px 10px; }
+.pg-hi.s3 { --r: -10deg; top: 20px; right: -28px; width: 96px; height: 96px; padding: 10px 0 0; display: grid; place-items: center; font-size: 15px; font-weight: 700; line-height: 1; background: var(--pg-accent); color: #fff; clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%); }
 .pg-chip { position: absolute; background: #f7f7f5; padding: 0 4px; font-size: 12px; color: #3a3a3a; line-height: 1.6; }
 .pg-name { margin: 0; font-size: 56px; font-weight: 600; letter-spacing: -0.04em; line-height: 1; }
 .pg-name em { font-family: var(--pg-serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; }
 .pg-rename { display: inline-flex; align-items: center; border: 1px solid var(--pg-ink); background: #fff; padding: 2px 10px; font-size: 18px; line-height: 1.5; }
 .pg-rename > span:first-child { background: var(--pg-sel); }
 .pg-info { flex: 999 1 420px; min-width: 0; padding-left: 8%; padding-top: 24px; display: flex; flex-direction: column; gap: 32px; }
-.pg-info > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; }
+.pg-info > div { display: grid; grid-template-columns: 120px minmax(0, 1fr); gap: 16px; align-items: baseline; }
+.pg-copy { position: relative; padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
+.pg-copy .pg-copied { position: absolute; left: calc(100% + 10px); top: 50%; padding: 3px 8px; background: var(--pg-ink); color: #fff; font-size: 12px; line-height: 1.4; white-space: nowrap; opacity: 0; transform: translate(-6px, -50%) scale(.8); transition: opacity .2s ease, transform .3s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
+.pg-copy.done .pg-copied { opacity: 1; transform: translate(0, -50%) scale(1); }
+.pg-copy.done .pg-ul { animation: pg-copy-pop .4s cubic-bezier(.2,1.6,.4,1); }
+@keyframes pg-copy-pop { 40% { transform: scale(1.06); } }
+.pg-copy .pg-ul { display: inline-block; }
+.pg-more { margin-left: 2px; font-size: 13px; color: var(--pg-muted); white-space: nowrap; border-bottom: 1px solid currentColor; }
+.pg-more:hover { color: var(--pg-ink); }
 .pg-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--pg-accent); margin-right: 10px; vertical-align: 1px; }
 
 /* 홈: 폴더 */
@@ -186,6 +198,7 @@ html body.pg {
 
 /* 글 상세 */
 .pg-post-head { padding-top: 64px; padding-bottom: 40px; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.pg-lede { margin: 8px 0 0; max-width: 620px; padding: 10px 14px; border-left: 3px solid var(--pg-accent); background: var(--pg-tint); font-size: 15px; line-height: 1.6; color: var(--pg-muted); }
 .pg-post-head h1 { margin: 0; max-width: 760px; font-size: 26px; line-height: 1.35; font-weight: 600; letter-spacing: -0.025em; }
 .pg-meta { display: flex; flex-direction: column; gap: 2px; font-size: 14px; line-height: 1.6; color: var(--pg-muted); }
 .pg-meta .cat { display: inline-flex; align-items: center; gap: 8px; }

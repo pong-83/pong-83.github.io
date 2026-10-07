@@ -124,7 +124,7 @@ export function PostView({
           )}
           {date && <span style={{ fontVariantNumeric: 'tabular-nums' }}>{formatDate(date)}</span>}
         </div>
-        {description && <p style={{ margin: '12px 0 0', maxWidth: 560, color: 'var(--pg-muted)' }}>{description}</p>}
+        {description && <p className="pg-lede">{description}</p>}
       </section>
 
       {coverImageUrl && (
