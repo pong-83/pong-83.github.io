@@ -258,7 +258,7 @@ describe('createNotionClient', () => {
       })
     })
 
-    it('should filter out posts without slug', async () => {
+    it('should give posts without slug an automatic address from the page id', async () => {
       const mockResponse = {
         results: [
           {
@@ -269,7 +269,7 @@ describe('createNotionClient', () => {
             },
           },
           {
-            id: 'page-2',
+            id: '3f28a7a4-17e4-8150-9a21-c6358a3c0ba5',
             properties: {
               Title: { title: [{ plain_text: 'No Slug Post' }] },
               Slug: { rich_text: [] }, // No slug
@@ -286,8 +286,9 @@ describe('createNotionClient', () => {
       const client = createNotionClient()
       const posts = await client.listPublishedPosts()
 
-      expect(posts).toHaveLength(1)
+      expect(posts).toHaveLength(2)
       expect(posts[0].slug).toBe('valid-slug')
+      expect(posts[1].slug).toBe('p-3f28a7a417e481509a21c6358a3c0ba5')
     })
 
     it('should use cache on subsequent calls', async () => {
@@ -554,6 +555,46 @@ describe('createNotionClient', () => {
 
       const client = createNotionClient()
       const post = await client.getPostBySlug('non-existent')
+
+      expect(post).toBeNull()
+    })
+
+    it('should not open an automatic address for a page outside the posts database', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          id: '3f28a7a4-17e4-8150-9a21-c6358a3c0ba5',
+          parent: { database_id: 'other-database-id' },
+          properties: {
+            Title: { title: [{ plain_text: 'Private page' }] },
+            Status: { select: { name: 'Publish' } },
+            Slug: { rich_text: [] },
+          },
+        }),
+      })
+
+      const client = createNotionClient()
+      const post = await client.getPostBySlug('p-3f28a7a417e481509a21c6358a3c0ba5')
+
+      expect(post).toBeNull()
+    })
+
+    it('should not open an automatic address for an unpublished post', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          id: '3f28a7a4-17e4-8150-9a21-c6358a3c0ba5',
+          parent: { database_id: 'test-database-id' },
+          properties: {
+            Title: { title: [{ plain_text: 'Draft' }] },
+            Status: { select: { name: 'Draft' } },
+            Slug: { rich_text: [] },
+          },
+        }),
+      })
+
+      const client = createNotionClient()
+      const post = await client.getPostBySlug('p-3f28a7a417e481509a21c6358a3c0ba5')
 
       expect(post).toBeNull()
     })

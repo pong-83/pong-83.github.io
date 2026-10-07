@@ -44,6 +44,9 @@ export type NotionClientApi = {
   getDatabaseSchema: (databaseId: string) => Promise<string[]>;
 };
 
+/** Slug가 빈 글에 붙는 자동 주소 앞부분 */
+export const AUTO_SLUG_PREFIX = 'p-';
+
 // 필드명은 사용자가 구성한 스키마에 맞춤
 const FIELD = {
   title: 'Title',
@@ -98,6 +101,8 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
     file?: { url?: string };
   };
   type NotionPage = {
+    id?: string;
+    parent?: { database_id?: string };
     properties?: Record<string, NotionProperty>;
     cover?: NotionCover | null;
   };
@@ -111,7 +116,9 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
   function pageToItem(page: NotionPage): PostListItem {
     const props = page.properties ?? {};
     const title = props[FIELD.title]?.title ? getPlainText(props[FIELD.title].title) : 'Untitled';
-    const slug = props[FIELD.slug]?.rich_text ? getPlainText(props[FIELD.slug].rich_text) : '';
+    // Slug를 비워 두면 페이지 ID로 주소를 자동으로 만듦 (예: p-3f28a7a417e48150...)
+    const slugText = props[FIELD.slug]?.rich_text ? getPlainText(props[FIELD.slug].rich_text).trim() : '';
+    const slug = slugText || (page.id ? `${AUTO_SLUG_PREFIX}${page.id.replace(/-/g, '')}` : '');
     const date = props[FIELD.date]?.date?.start ?? undefined;
 
     // Tags with color information
@@ -147,6 +154,61 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
     const author = props[FIELD.author]?.people?.[0]?.name ||
                   (props[FIELD.author]?.rich_text ? getPlainText(props[FIELD.author].rich_text) : undefined);
     return { slug, title, date, tags, tagsWithColors, status, statusColor, label, description, coverImageUrl, language, author };
+  }
+
+  // Slug 칸에 적힌 주소로 공개 글 찾기
+  async function fetchPageBySlug(slug: string): Promise<NotionPage | undefined> {
+    const response = await fetch(
+      `${NOTION_CONFIG.BASE_URL}/${NOTION_ENDPOINTS.databaseQuery(databaseId)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Notion-Version': NOTION_CONFIG.API_VERSION,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          filter: {
+            and: [
+              { property: FIELD.status, select: { equals: 'Publish' } },
+              { property: FIELD.slug, rich_text: { equals: slug } },
+            ],
+          },
+          page_size: 1,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw NotionApiError.fromHttpStatus(
+        response.status,
+        `Failed to fetch post by slug: ${errorText}`
+      );
+    }
+
+    const data = await response.json();
+    return data.results[0];
+  }
+
+  // 자동 주소(p-페이지ID)로 글 찾기: Posts 데이터베이스의 공개 글이고 Slug가 비어 있을 때만
+  async function fetchAutoSlugPage(rawId: string): Promise<NotionPage | undefined> {
+    if (!/^[0-9a-f]{32}$/i.test(rawId)) return undefined;
+    const pageId = rawId.replace(/(.{8})(.{4})(.{4})(.{4})(.{12})/, '$1-$2-$3-$4-$5');
+    const response = await fetch(`${NOTION_CONFIG.BASE_URL}/${NOTION_ENDPOINTS.page(pageId)}`, {
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Notion-Version': NOTION_CONFIG.API_VERSION,
+      },
+    });
+    if (!response.ok) return undefined;
+
+    const page: NotionPage = await response.json();
+    const sameDatabase = page.parent?.database_id?.replace(/-/g, '') === databaseId?.replace(/-/g, '');
+    const props = page.properties ?? {};
+    const published = props[FIELD.status]?.select?.name === 'Publish';
+    const slugText = props[FIELD.slug]?.rich_text ? getPlainText(props[FIELD.slug].rich_text).trim() : '';
+    return sameDatabase && published && !slugText ? page : undefined;
   }
 
   // 렌더러에 NotionClient 설정 (링크드 데이터베이스 쿼리용)
@@ -437,39 +499,9 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
               return { ...item, coverImageUrl: detailCoverImageUrl, html, content: blocks };
             }
 
-            // 일반 slug로 데이터베이스 쿼리
-            const response = await fetch(
-              `${NOTION_CONFIG.BASE_URL}/${NOTION_ENDPOINTS.databaseQuery(databaseId)}`,
-              {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${apiKey}`,
-                  'Notion-Version': NOTION_CONFIG.API_VERSION,
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                  filter: {
-                    and: [
-                      { property: FIELD.status, select: { equals: 'Publish' } },
-                      { property: FIELD.slug, rich_text: { equals: slug } },
-                    ],
-                  },
-                  page_size: 1,
-                }),
-              }
-            );
-
-            if (!response.ok) {
-              const errorText = await response.text();
-              throw NotionApiError.fromHttpStatus(
-                response.status,
-                `Failed to fetch post by slug: ${errorText}`
-              );
-            }
-
-            const data = await response.json();
-
-            const page: NotionPage | undefined = data.results[0];
+            const page = slug.startsWith(AUTO_SLUG_PREFIX)
+              ? await fetchAutoSlugPage(slug.slice(AUTO_SLUG_PREFIX.length))
+              : await fetchPageBySlug(slug);
             if (!page) {
               return null;
             }
