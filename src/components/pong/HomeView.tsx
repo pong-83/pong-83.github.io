@@ -181,6 +181,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                   <span className="pg-chip" style={{ right: 24, bottom: 24 }}>0 KB</span>
                 </>
               )}
+              {hasPhoto && <div className="pg-star-dots" aria-hidden="true" />}
             </div>
             {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
             <span className="pg-hi" aria-hidden="true">Hi, I&apos;m {name}</span>
