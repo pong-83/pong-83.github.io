@@ -75,7 +75,18 @@ interface HomeViewProps {
   settings: SiteSettings
 }
 
-const STICKER_COUNT = 4
+// 사진에 마우스를 올릴 때마다 차례로 바뀌는 스티커 문구 ({name}은 이름으로 바뀜)
+const STICKERS = [
+  'Hi, I’m {name}',
+  'Hi, I’m {name}',
+  'Hi, I’m {name}',
+  'Hi!',
+  'hello!',
+  'HELLO\nmy name is {name}',
+  '{name} was here',
+  '★ +1 HP',
+]
+const STICKER_COUNT = STICKERS.length
 // 이메일을 누를 때마다 돌아가며 뜨는 말
 const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하면 돼요 ⌘V', '편지 기다릴게요 ☺']
 
@@ -204,7 +215,10 @@ export function HomeView({ posts, settings }: HomeViewProps) {
             </div>
             {hasPhoto && <span className="pg-no" style={{ borderTopRightRadius: 4 }}>1</span>}
             <span className={`pg-hi s${sticker}`} aria-hidden="true">
-              {sticker === 3 ? 'Hi!' : <>Hi, I&apos;m {name}</>}
+              {STICKERS[sticker]
+                .replace('{name}', name)
+                .split('\n')
+                .map((line, i) => (i === 0 ? <b key={i}>{line}</b> : <span key={i}>{line}</span>))}
             </span>
           </div>
           <div id="about" style={{ scrollMarginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
@@ -229,8 +243,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                 <span style={{ whiteSpace: 'pre-line' }}>{settings.bio}</span>{' '}
                 <Link href="/about" className="pg-more">
                   <span className="t">
-                    <span className="a">TMI 더 보기</span>
-                    <span className="b">궁금하죠? 들어와요</span>
+                    <span className="a">펼쳐 보기</span>
+                    <span className="b">접힌 페이지가 있어요</span>
                   </span>
                   <i>→</i>
                 </Link>
