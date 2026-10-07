@@ -60,9 +60,9 @@ html body.pg {
 .pg-logo svg { transition: transform .5s cubic-bezier(.3,1.4,.5,1); }
 .pg-logo polygon { fill: var(--pg-accent); transition: fill .3s ease; }
 .pg-view { position: relative; display: inline-block; white-space: nowrap; flex: none; font-size: 14px; font-weight: 600; letter-spacing: -0.005em; border: 0; background: none; padding: 0; cursor: pointer; font-family: inherit; color: inherit; }
-/* 스쳐 지나갈 때는 안 바뀌고, 잠깐 머물면 문구가 위로 굴러 바뀜. 커서가 떠나도 잠시 남아 있음 */
+/* 스쳐 지나갈 때는 안 바뀌고, 잠깐 머물면 문구가 위로 굴러 바뀜. 커서가 떠나도 1.5초 동안 남아 있다가 돌아감 */
 .pg-view { clip-path: inset(-4px -100vw); }
-.pg-view .va, .pg-view .vb { display: inline-block; transition: transform .4s cubic-bezier(.2,.8,.2,1) .45s, opacity .3s ease .45s; }
+.pg-view .va, .pg-view .vb { display: inline-block; transition: transform .4s cubic-bezier(.2,.8,.2,1) 1.5s, opacity .3s ease 1.5s; }
 .pg-view .vb { position: absolute; right: 0; top: 0; opacity: 0; transform: translateY(110%); }
 .pg-view:hover .va, .pg-view:focus-visible .va { opacity: 0; transform: translateY(-110%); transition-delay: .15s; }
 .pg-view:hover .vb, .pg-view:focus-visible .vb { opacity: 1; transform: none; transition-delay: .15s; }
