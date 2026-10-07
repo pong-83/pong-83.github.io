@@ -6,7 +6,6 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { GoogleAdSense } from "@/components/GoogleAdSense";
 import { SiteHeader } from "@/components/pong/SiteHeader";
-import { GlassCursor } from "@/components/pong/GlassCursor";
 import { PongFooter } from "@/components/pong/PongFooter";
 import { PALETTE_BOOT_SCRIPT } from "@/config/pong";
 import { getSiteSettingsMemo, getSiteConfigMemo, listPublishedPostsMemo } from "@/lib/request-memo";
@@ -98,7 +97,6 @@ export default async function RootLayout({
             {children}
             <PongFooter name={name} />
           </div>
-          <GlassCursor />
         </ThemeProvider>
       </body>
     </html>
