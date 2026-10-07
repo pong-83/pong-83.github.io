@@ -6,6 +6,21 @@ import { usePathname, useRouter } from 'next/navigation'
 import { ABOUT_EVENT, PALETTES, PALETTE_STORAGE_KEY as STORAGE_KEY, type PaletteId } from '@/config/pong'
 import { Star } from './Star'
 
+const LUCKY_KEY = 'pong-lucky-count'
+const LUCKY_EVERY = 7 // 7번째 누를 때마다 이스터에그
+const BASE = process.env.NEXT_PUBLIC_BASE_PATH || ''
+const CONFETTI = Array.from({ length: 18 }, (_, i) => i)
+
+function bumpLucky(): number {
+  try {
+    const n = Number(window.localStorage.getItem(LUCKY_KEY) || '0') + 1
+    window.localStorage.setItem(LUCKY_KEY, String(n))
+    return n
+  } catch {
+    return 0
+  }
+}
+
 function readPalette(): number {
   try {
     const saved = window.localStorage.getItem(STORAGE_KEY)
@@ -29,6 +44,7 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const [hidden, setHidden] = useState(false)
   const lastY = useRef(0)
+  const [egg, setEgg] = useState(false)
 
   useEffect(() => {
     setSpins(readPalette())
@@ -60,6 +76,11 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
   }
 
   const openRandom = () => {
+    if (bumpLucky() % LUCKY_EVERY === 0) {
+      setEgg(true)
+      window.setTimeout(() => setEgg(false), 3600)
+      return
+    }
     if (slugs.length === 0) return
     const slug = slugs[Math.floor(Math.random() * slugs.length)]
     router.push(`/posts/${slug}/`)
@@ -68,6 +89,7 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
   const label = `You are viewing ${name}'s page.`
 
   return (
+    <>
     <header className={`pg-wrap pg-hdr${scrolled ? ' is-scrolled' : ''}${hidden ? ' is-hidden' : ''}`}>
       <nav className="pg-nav" aria-label="메인 메뉴">
         <button type="button" className="pg-logo" aria-label="별을 눌러 컬러 바꾸기" onClick={nextPalette}>
@@ -102,6 +124,17 @@ export function SiteHeader({ name, slugs }: SiteHeaderProps) {
         </Link>
       )}
     </header>
+      {egg && (
+        <div className="pg-egg" aria-live="polite">
+          {CONFETTI.map((i) => (
+            <Star key={i} size={10 + (i % 4) * 4} className="pg-egg-star" fill="var(--pg-accent)" style={{ '--x': `${(i * 53) % 100}vw`, '--delay': `${(i % 6) * 0.12}s` } as React.CSSProperties} />
+          ))}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="pg-egg-run" src={`${BASE}/images/pong-walk.png`} alt="" />
+          <p className="pg-egg-msg">럭키 세븐! 오늘은 좋은 일이 생길 거예요 ✶</p>
+        </div>
+      )}
+    </>
   )
 }
 

@@ -228,7 +228,11 @@ export function HomeView({ posts, settings }: HomeViewProps) {
               <span style={{ maxWidth: 460 }}>
                 <span style={{ whiteSpace: 'pre-line' }}>{settings.bio}</span>{' '}
                 <Link href="/about" className="pg-more">
-                  더 알아보기 →
+                  <span className="t">
+                    <span className="a">TMI 더 보기</span>
+                    <span className="b">궁금하죠? 들어와요</span>
+                  </span>
+                  <i>→</i>
                 </Link>
               </span>
             </div>
