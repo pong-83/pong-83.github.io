@@ -52,6 +52,8 @@ html body.pg {
 .pg-hdr { position: sticky; top: 0; z-index: 40; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 28px; padding-bottom: 28px; line-height: 1.4; transition: transform .35s cubic-bezier(.2,.7,.2,1), padding .25s ease, background .25s ease; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
 .pg-hdr.is-scrolled { padding-top: 16px; padding-bottom: 16px; background: rgba(247,247,245,.86); }
 .pg-hdr.is-hidden { transform: translateY(-110%); }
+/* 폰에서는 흐림 효과가 이미지 위 스크롤을 버벅이게 해서 거의 불투명한 배경으로 */
+@media (max-width: 720px) { .pg-hdr { backdrop-filter: none; -webkit-backdrop-filter: none; } .pg-hdr.is-scrolled { background: rgba(247,247,245,.97); } }
 .pg-nav { display: flex; align-items: center; gap: 32px; white-space: nowrap; font-size: 13px; font-weight: 500; letter-spacing: 0.04em; }
 .pg-logo { width: 32px; height: 32px; margin: -6px; padding: 0; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: transform .2s ease; }
 .pg-logo:hover { transform: scale(1.15); }
@@ -73,17 +75,17 @@ html body.pg {
 .pg-photo-btn { position: relative; display: block; width: 100%; padding: 0; border: 0; background: transparent; cursor: default; text-align: left; font-family: inherit; }
 .pg-photo-frame { position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 4px; background: #ededea; }
 .pg-photo-frame img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(1) contrast(1.08) brightness(1.04); transition: filter .45s ease, transform .6s cubic-bezier(.2,.7,.2,1); }
-.pg-photo-btn:hover .pg-photo-frame img { filter: none; transform: scale(1.04); }
+.pg-photo-btn:hover .pg-photo-frame img, .pg-photo-btn.on .pg-photo-frame img { filter: none; transform: scale(1.04); }
 /* 기본: 사진을 지금 컬러(accent)의 투톤으로, 마우스를 올리면 원래 색 */
 .pg-photo-frame.has-photo::after { content: ''; position: absolute; inset: 0; background: var(--pg-accent); mix-blend-mode: screen; opacity: .85; transition: opacity .45s ease; pointer-events: none; }
-.pg-photo-btn:hover .pg-photo-frame.has-photo::after { opacity: 0; }
+.pg-photo-btn:hover .pg-photo-frame.has-photo::after, .pg-photo-btn.on .pg-photo-frame.has-photo::after { opacity: 0; }
 /* 기본: 찌그러진 별 모양 점 무늬, 마우스를 올리면 사라져요 */
 .pg-dots { position: absolute; inset: 0; background-image: radial-gradient(#111 1.1px, transparent 1.5px); background-size: 6px 6px; mix-blend-mode: multiply; opacity: .55; transition: opacity .35s ease; pointer-events: none; }
-.pg-photo-btn:hover .pg-dots { opacity: 0; }
+.pg-photo-btn:hover .pg-dots, .pg-photo-btn.on .pg-dots { opacity: 0; }
 .pg-tint { position: absolute; inset: 0; opacity: 0; background: color-mix(in srgb, var(--pg-point) 65%, #ffffff); transition: opacity .35s ease; }
-.pg-photo-btn:hover .pg-tint { opacity: 1; }
+.pg-photo-btn:hover .pg-tint, .pg-photo-btn.on .pg-tint { opacity: 1; }
 .pg-hi { --r: -6deg; position: absolute; right: -12px; top: 48px; z-index: 2; background: var(--pg-point); color: var(--pg-ink); padding: 6px 12px; font-size: 13px; font-weight: 600; line-height: 1.4; white-space: nowrap; opacity: 0; transform: translateY(8px) rotate(var(--r)); transition: opacity .3s cubic-bezier(.2,.7,.2,1), transform .3s cubic-bezier(.2,.7,.2,1); }
-.pg-photo-btn:hover .pg-hi { opacity: 1; transform: translateY(0) rotate(var(--r)); }
+.pg-photo-btn:hover .pg-hi, .pg-photo-btn.on .pg-hi { opacity: 1; transform: translateY(0) rotate(var(--r)); }
 /* 마우스를 올릴 때마다 바뀌는 스티커 모양 */
 .pg-hi.s1 { --r: -3deg; right: auto; left: -16px; top: auto; bottom: 64px; background: #fff; border: 1.5px solid var(--pg-ink); border-radius: 999px; padding: 8px 16px; box-shadow: 3px 3px 0 var(--pg-ink); }
 .pg-hi.s2 { --r: 4deg; top: 24px; right: 20px; background: var(--pg-ink); color: #fff; font-family: 'JetBrains Mono', ui-monospace, monospace; font-weight: 400; font-size: 12px; letter-spacing: 0.02em; padding: 6px 10px; }
@@ -105,6 +107,10 @@ html body.pg {
 .pg-copy { position: relative; padding: 0; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; text-align: left; }
 .pg-copy .pg-copied { position: absolute; left: calc(100% + 10px); top: 50%; padding: 3px 8px; background: var(--pg-ink); color: #fff; font-size: 12px; line-height: 1.4; white-space: nowrap; opacity: 0; transform: translate(-6px, -50%) scale(.8); transition: opacity .2s ease, transform .3s cubic-bezier(.2,1.6,.4,1); pointer-events: none; }
 .pg-copy.done .pg-copied { opacity: 1; transform: translate(0, -50%) scale(1); }
+@media (max-width: 720px) {
+  .pg-copy .pg-copied { left: 0; top: auto; bottom: calc(100% + 8px); transform: translateY(6px) scale(.8); transform-origin: left bottom; }
+  .pg-copy.done .pg-copied { transform: translateY(0) scale(1); }
+}
 .pg-copy.done .pg-ul { animation: pg-copy-pop .4s cubic-bezier(.2,1.6,.4,1); }
 @keyframes pg-copy-pop { 40% { transform: scale(1.06); } }
 .pg-copy .pg-ul { display: inline-block; }
