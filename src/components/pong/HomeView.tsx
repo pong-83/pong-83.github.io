@@ -380,22 +380,24 @@ export function HomeView({ posts, settings }: HomeViewProps) {
           </div>
 
           <div className="pg-preview" aria-hidden="true">
-            <div className="pg-paper" style={{ transform: `rotate(${curTilt}deg)` }}>
-              <span className="corner" />
-              <div
-                className="cover"
-                style={{ background: cur ? colorOf(cur.label) : '#E9E9E6', color: cur?.label && colorOf(cur.label) === '#2B2B2B' ? '#fff' : '#111' }}
-              >
-                {cur?.coverImageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={cur.coverImageUrl} alt="" referrerPolicy="no-referrer" />
-                ) : null}
-                {cur && <span className="pg-no">{curNo}</span>}
+            <div className="pg-paper-shadow">
+              <div className="pg-paper" style={{ transform: `rotate(${curTilt}deg)` }}>
+                <span className="corner" />
+                <div
+                  className="cover"
+                  style={{ background: cur ? colorOf(cur.label) : '#E9E9E6', color: cur?.label && colorOf(cur.label) === '#2B2B2B' ? '#fff' : '#111' }}
+                >
+                  {cur?.coverImageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={cur.coverImageUrl} alt="" referrerPolicy="no-referrer" />
+                  ) : null}
+                  {cur && <span className="pg-no">{curNo}</span>}
+                </div>
+                <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>{cur ? cur.title : '새 글을 기다리는 중'}</span>
+                <span style={{ fontSize: 12, color: 'var(--pg-muted)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
+                  {cur?.description}
+                </span>
               </div>
-              <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>{cur ? cur.title : '새 글을 기다리는 중'}</span>
-              <span style={{ fontSize: 12, color: 'var(--pg-muted)', lineHeight: 1.5, overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical' }}>
-                {cur?.description}
-              </span>
             </div>
             <span style={{ fontSize: 14, fontWeight: 500 }}>{cur ? `${cur.slug}.md` : 'untitled.md'}</span>
           </div>
