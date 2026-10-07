@@ -60,6 +60,86 @@ async function defaultDownload(url: string, filepath: string) {
   fs.renameSync(tmp, filepath)
 }
 
+/**
+ * 이미지 파일 앞부분만 읽어 가로·세로 크기를 알아냅니다. (PNG, JPEG, GIF, WebP)
+ * 모르는 형식이면 null 을 돌려줍니다.
+ */
+export function readImageSize(filepath: string): { width: number; height: number } | null {
+  let buf: Buffer
+  try {
+    buf = fs.readFileSync(filepath)
+  } catch {
+    return null
+  }
+  if (buf.length >= 24 && buf.readUInt32BE(0) === 0x89504e47) {
+    return { width: buf.readUInt32BE(16), height: buf.readUInt32BE(20) }
+  }
+  if (buf.length >= 10 && buf.toString('ascii', 0, 3) === 'GIF') {
+    return { width: buf.readUInt16LE(6), height: buf.readUInt16LE(8) }
+  }
+  if (buf.length >= 30 && buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+    const chunk = buf.toString('ascii', 12, 16)
+    if (chunk === 'VP8X') return { width: 1 + buf.readUIntLE(24, 3), height: 1 + buf.readUIntLE(27, 3) }
+    if (chunk === 'VP8L') {
+      const b = buf.readUInt32LE(21)
+      return { width: (b & 0x3fff) + 1, height: ((b >> 14) & 0x3fff) + 1 }
+    }
+    if (chunk === 'VP8 ') return { width: buf.readUInt16LE(26) & 0x3fff, height: buf.readUInt16LE(28) & 0x3fff }
+    return null
+  }
+  if (buf.length >= 4 && buf[0] === 0xff && buf[1] === 0xd8) {
+    let i = 2
+    while (i + 9 < buf.length) {
+      if (buf[i] !== 0xff) return null
+      const marker = buf[i + 1]
+      const len = buf.readUInt16BE(i + 2)
+      // SOF0~SOF15 (DHT·JPG·DAC 제외) 에 크기가 들어 있어요
+      if (marker >= 0xc0 && marker <= 0xcf && ![0xc4, 0xc8, 0xcc].includes(marker)) {
+        const size = { width: buf.readUInt16BE(i + 7), height: buf.readUInt16BE(i + 5) }
+        // 사진을 돌려 찍은 경우(EXIF 회전)는 빌드 때 바로 세워 저장하므로 가로세로를 맞춰 줘요
+        return jpegIsRotated(buf) ? { width: size.height, height: size.width } : size
+      }
+      i += 2 + len
+    }
+  }
+  return null
+}
+
+/** JPEG EXIF 방향 값이 5~8(90도 돌아감)인지 봅니다. */
+function jpegIsRotated(buf: Buffer): boolean {
+  const app1 = buf.indexOf(Buffer.from('Exif\0\0', 'binary'))
+  if (app1 < 0 || app1 > 64 * 1024) return false
+  const tiff = app1 + 6
+  if (tiff + 8 > buf.length) return false
+  const le = buf.toString('ascii', tiff, tiff + 2) === 'II'
+  const u16 = (o: number) => (le ? buf.readUInt16LE(o) : buf.readUInt16BE(o))
+  const u32 = (o: number) => (le ? buf.readUInt32LE(o) : buf.readUInt32BE(o))
+  const ifd = tiff + u32(tiff + 4)
+  if (ifd + 2 > buf.length) return false
+  const count = u16(ifd)
+  for (let n = 0; n < count; n++) {
+    const e = ifd + 2 + n * 12
+    if (e + 10 > buf.length) return false
+    if (u16(e) === 0x0112) return u16(e + 8) >= 5
+  }
+  return false
+}
+
+/**
+ * 사이트 안 이미지 태그에 원래 크기(width·height)를 적어 둡니다.
+ * 이미지가 늦게 불러와져도 자리가 먼저 잡혀서, 스크롤하다 글이 갑자기 밀리지 않아요.
+ */
+function addImageSizes(html: string, sizes: Map<string, { width: number; height: number }>): string {
+  if (!sizes.size || !html.includes('<img')) return html
+  return html.replace(/<img\b[^>]*>/g, (tag) => {
+    if (/\swidth=/.test(tag)) return tag
+    const src = tag.match(/\ssrc="([^"]+)"/)?.[1]
+    const size = src && sizes.get(src)
+    if (!size) return tag
+    return tag.replace(/<img\b/, `<img width="${size.width}" height="${size.height}"`)
+  })
+}
+
 export function isImageStoreEnabled(): boolean {
   if (process.env.NOTION_IMAGE_STORE === 'off') return false
   return process.env.NODE_ENV === 'production'
@@ -73,6 +153,7 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
   const download = options.download ?? defaultDownload
   const dir = path.join(rootDir, NOTION_IMAGE_DIR)
   const pending = new Map<string, Promise<string | null>>()
+  const sizes = new Map<string, { width: number; height: number }>()
 
   function save(url: string): Promise<string | null> {
     let name: string
@@ -90,7 +171,10 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
           fs.mkdirSync(dir, { recursive: true })
           await download(url, filepath)
         }
-        return `${publicPrefix}/${PUBLIC_DIR_NAME}/${name}`
+        const publicUrl = `${publicPrefix}/${PUBLIC_DIR_NAME}/${name}`
+        const size = readImageSize(filepath)
+        if (size && size.width > 0 && size.height > 0) sizes.set(publicUrl, size)
+        return publicUrl
       } catch (error) {
         console.warn(`⚠️  Could not save Notion image, keeping its address: ${(error as Error).message}`)
         return null
@@ -105,7 +189,7 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
     if (!matches) return text
     const local = new Map<string, string | null>()
     for (const raw of new Set(matches)) local.set(raw, await save(decodeUrl(raw)))
-    return text.replace(NOTION_IMAGE_URL, (raw) => local.get(raw) ?? raw)
+    return addImageSizes(text.replace(NOTION_IMAGE_URL, (raw) => local.get(raw) ?? raw), sizes)
   }
 
   /** 데이터 안의 모든 문자열에서 Notion 이미지 주소를 사이트 안 주소로 바꾼 사본을 돌려줍니다. */
