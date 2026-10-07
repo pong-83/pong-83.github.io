@@ -1,9 +1,18 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { memo, useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { PostSection } from '@/lib/sections'
 import type { PostListItem } from '@/services/notion/types'
+
+/**
+ * 본문 HTML 을 한 번만 그려요.
+ * 스크롤할 때마다 읽은 % 가 바뀌어 화면이 다시 그려지는데, 그때마다 본문을 통째로 새로 넣으면
+ * 이미지가 사라졌다 다시 불러와지면서 글이 튀어요. 내용이 같으면 다시 그리지 않게 막아요.
+ */
+const HtmlBody = memo(function HtmlBody({ className, html }: { className: string; html: string }) {
+  return <div className={className} dangerouslySetInnerHTML={{ __html: html }} />
+})
 
 interface PostViewProps {
   slug: string
@@ -166,13 +175,13 @@ export function PostView({
             </details>
           )}
 
-          {introHtml && <div className="pg-intro pg-body" dangerouslySetInnerHTML={{ __html: introHtml }} />}
+          {introHtml && <HtmlBody className="pg-intro pg-body" html={introHtml} />}
 
           {sections.map((s, i) => (
             <div key={s.id} id={s.id} className="pg-sec">
               <span className="num">({i + 1})</span>
               <Wavy text={s.title} />
-              <div className="pg-body" dangerouslySetInnerHTML={{ __html: s.html }} />
+              <HtmlBody className="pg-body" html={s.html} />
             </div>
           ))}
 

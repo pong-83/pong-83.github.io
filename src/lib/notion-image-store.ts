@@ -125,17 +125,23 @@ function jpegIsRotated(buf: Buffer): boolean {
   return false
 }
 
+const sizeCache = new Map<string, { width: number; height: number } | null>()
+
 /**
- * 사이트 안 이미지 태그에 원래 크기(width·height)를 적어 둡니다.
+ * 사이트 안 이미지(/notion-images/...) 태그에 원래 크기(width·height)를 적어 둡니다.
  * 이미지가 늦게 불러와져도 자리가 먼저 잡혀서, 스크롤하다 글이 갑자기 밀리지 않아요.
+ * 글을 섹션으로 나눠 다시 그린 HTML 에도 쓸 수 있도록 파일에서 바로 크기를 읽어요.
  */
-function addImageSizes(html: string, sizes: Map<string, { width: number; height: number }>): string {
-  if (!sizes.size || !html.includes('<img')) return html
+export function addLocalImageSizes(html: string, rootDir: string = process.cwd()): string {
+  if (!html || !html.includes('<img')) return html
   return html.replace(/<img\b[^>]*>/g, (tag) => {
     if (/\swidth=/.test(tag)) return tag
-    const src = tag.match(/\ssrc="([^"]+)"/)?.[1]
-    const size = src && sizes.get(src)
-    if (!size) return tag
+    const name = tag.match(new RegExp(`\\ssrc="[^"]*/${PUBLIC_DIR_NAME}/([0-9a-f]{16}\\.[a-z]+)"`))?.[1]
+    if (!name) return tag
+    const filepath = path.join(rootDir, NOTION_IMAGE_DIR, name)
+    if (!sizeCache.has(filepath)) sizeCache.set(filepath, readImageSize(filepath))
+    const size = sizeCache.get(filepath)
+    if (!size || size.width <= 0 || size.height <= 0) return tag
     return tag.replace(/<img\b/, `<img width="${size.width}" height="${size.height}"`)
   })
 }
@@ -153,7 +159,6 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
   const download = options.download ?? defaultDownload
   const dir = path.join(rootDir, NOTION_IMAGE_DIR)
   const pending = new Map<string, Promise<string | null>>()
-  const sizes = new Map<string, { width: number; height: number }>()
 
   function save(url: string): Promise<string | null> {
     let name: string
@@ -171,10 +176,7 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
           fs.mkdirSync(dir, { recursive: true })
           await download(url, filepath)
         }
-        const publicUrl = `${publicPrefix}/${PUBLIC_DIR_NAME}/${name}`
-        const size = readImageSize(filepath)
-        if (size && size.width > 0 && size.height > 0) sizes.set(publicUrl, size)
-        return publicUrl
+        return `${publicPrefix}/${PUBLIC_DIR_NAME}/${name}`
       } catch (error) {
         console.warn(`⚠️  Could not save Notion image, keeping its address: ${(error as Error).message}`)
         return null
@@ -189,7 +191,7 @@ export function createImageStore(options: { rootDir?: string; publicPrefix?: str
     if (!matches) return text
     const local = new Map<string, string | null>()
     for (const raw of new Set(matches)) local.set(raw, await save(decodeUrl(raw)))
-    return addImageSizes(text.replace(NOTION_IMAGE_URL, (raw) => local.get(raw) ?? raw), sizes)
+    return addLocalImageSizes(text.replace(NOTION_IMAGE_URL, (raw) => local.get(raw) ?? raw), rootDir)
   }
 
   /** 데이터 안의 모든 문자열에서 Notion 이미지 주소를 사이트 안 주소로 바꾼 사본을 돌려줍니다. */
