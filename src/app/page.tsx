@@ -1,6 +1,6 @@
 import { createHomeMetadata, createJsonLd } from '@/lib/seo'
 import type { PostListItem } from '@/services/notion/client'
-import { listPublishedPostsMemo, getSiteSettingsMemo, getSiteConfigMemo } from '@/lib/request-memo'
+import { listPublishedPostsMemo, getPostBySlugMemo, getSiteSettingsMemo, getSiteConfigMemo } from '@/lib/request-memo'
 import type { Metadata } from 'next'
 import { HomeView } from '@/components/pong/HomeView'
 import { Suspense } from 'react'
@@ -19,6 +19,18 @@ export async function generateMetadata(): Promise<Metadata> {
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://your-username.github.io'
 
+// 커버가 없는 글은 본문의 첫 사진을 목록 미리보기에 써요
+async function withBodyCover(post: PostListItem): Promise<PostListItem> {
+  if (post.coverImageUrl) return post
+  try {
+    const html = (await getPostBySlugMemo(post.slug))?.html
+    const src = html?.match(/<figure[^>]*>\s*<img\s[^>]*?src="([^"]+)"/)?.[1]
+    return src ? { ...post, coverImageUrl: src.replace(/&amp;/g, '&') } : post
+  } catch {
+    return post
+  }
+}
+
 export default async function Home() {
   let posts: PostListItem[] = []
   let settings: any
@@ -31,6 +43,7 @@ export default async function Home() {
       getSiteConfigMemo(),
       listPublishedPostsMemo(),
     ])
+    posts = await Promise.all(posts.map(withBodyCover))
   } catch {
     // 글 목록을 못 불러와도 홈은 빈 상태로 보여 줌
 

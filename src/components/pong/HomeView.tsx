@@ -266,9 +266,18 @@ export function HomeView({ posts, settings }: HomeViewProps) {
             onPointerLeave={(e) => {
               if (e.pointerType !== 'mouse') return
               window.clearTimeout(stickerTimer.current)
-              stickerTimer.current = window.setTimeout(nextSticker, STICKER_FADE_MS)
+              stickerTimer.current = window.setTimeout(() => {
+                stickerTimer.current = 0
+                nextSticker()
+              }, STICKER_FADE_MS)
             }}
-            onPointerEnter={(e) => e.pointerType === 'mouse' && window.clearTimeout(stickerTimer.current)}
+            // 다 사라지기 전에 다시 올리면 기다리던 교체를 바로 해요. 그냥 취소하면 같은 스티커가 또 떠요
+            onPointerEnter={(e) => {
+              if (e.pointerType !== 'mouse' || !stickerTimer.current) return
+              window.clearTimeout(stickerTimer.current)
+              stickerTimer.current = 0
+              nextSticker()
+            }}
             onPointerDown={(e) => {
               if (e.pointerType === 'mouse') return
               setTapped(true)
