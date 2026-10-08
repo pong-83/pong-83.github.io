@@ -50,6 +50,10 @@ export type ProfileSettings = {
   bio?: string;
   homeTitle: string;
   homeDescription: string;
+  /** 홈 NOW 칸에서 타이핑되는 문구들 (노션 NowPhrases 칸) */
+  nowPhrases?: string[];
+  /** 프로필 사진 스티커 문구들 (노션 Stickers 칸) */
+  stickers?: string[];
   socialLinks: {
     kakaoChannel?: string;
     kakao?: string;

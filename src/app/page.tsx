@@ -55,7 +55,7 @@ export default async function Home() {
       ])
     } catch {
       settings = {
-        homeTitle: '블로그 제목',
+        homeTitle: '',
         homeSubtitle: 'Notion Site Settings 데이터베이스에 homeTitle, homeSubtitle 속성을 설정하세요',
       }
       siteConfig = {}
