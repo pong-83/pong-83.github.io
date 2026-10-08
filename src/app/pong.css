@@ -231,29 +231,23 @@ html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
 /* 홈: 글 목록 */
 .pg-files { display: flex; flex-wrap: wrap; gap: 64px; align-items: flex-start; border-top: 1px solid var(--pg-ink); padding-bottom: 40px; }
 .pg-list { flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; }
-/* 홈: 글 찾기 폴더. Finder 스마트 폴더처럼 테두리만 있는 폴더이고, 열면 이름칸이 진짜 입력칸이 돼요 */
-.pg-fold-find .pg-fbox { padding: 0; border: 0; background: transparent; cursor: pointer; font: inherit; color: var(--pg-ink); }
-.pg-fold-find.is-on .pg-fbox { width: 150px; height: 116px; }
-.pg-fold-find .tab, .pg-fold-find .back { background: var(--pg-bg); border: 1.5px solid var(--pg-ink); box-sizing: border-box; }
-.pg-fold-find .tab { border-bottom: 0; }
-.pg-fold-find .front { display: flex; align-items: center; justify-content: center; background: var(--pg-paper); border: 1.5px solid var(--pg-ink); box-sizing: border-box; box-shadow: none; }
-.pg-fold-find .front svg { width: 30%; height: auto; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
-.pg-fold-find:hover .front svg, .pg-fold-find.is-on .front svg { transform: rotate(-14deg) scale(1.08); }
-/* 찾은 글이 있으면 서류가 쏙 올라오고, 없으면 폴더가 고개를 저어요 */
-.pg-fold-find.hit .sheet { transform: translateY(-16px) rotate(-3deg); }
-.pg-fold-find.hit .front { transform: rotateX(-22deg); }
-.pg-fold-find.miss .pg-fbox { animation: pg-find-no .45s ease-in-out; }
-@keyframes pg-find-no { 25% { transform: translateX(-4px) rotate(-2deg); } 75% { transform: translateX(4px) rotate(2deg); } }
-.pg-find-name { display: inline-grid !important; cursor: text; }
-.pg-find-name::after, .pg-find-name input { grid-area: 1 / 1; font: inherit; padding: 0; margin: 0; letter-spacing: inherit; }
-.pg-find-name::after { content: attr(data-v) ' '; visibility: hidden; white-space: pre; max-width: 160px; overflow: hidden; }
-.pg-find-name input { width: 100%; min-width: 0; border: 0; outline: 0; background: transparent; color: inherit; caret-color: var(--pg-ink); }
-.pg-find-name input::placeholder { color: var(--pg-faint); }
-.pg-find-name input::-webkit-search-cancel-button { display: none; }
-@media (max-width: 720px) { .pg-fold-find.is-on .pg-fbox { width: 62px; height: 48px; } .pg-flab.pg-find-name { font-size: 16px; } .pg-find-name::after { max-width: 96px; } }
+/* 홈: 그냥 타이핑해서 찾기. 목록 위에 마우스가 있을 때 치면 'go to' 쪽지가 붙고 맞는 글로 커서가 가요 */
+.pg-find-col { position: relative; flex: 1 1 auto; min-width: 0; display: flex; align-items: center; gap: 12px; }
+.pg-typehint { margin-left: auto; display: inline-flex; align-items: center; gap: 6px; padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; color: var(--pg-faint); cursor: text; transition: color .2s ease; }
+.pg-typehint:hover, .pg-files.is-armed .pg-typehint { color: var(--pg-ink); }
+.pg-files.is-armed .pg-typehint::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pg-blink 1s steps(1) infinite; }
+.pg-find-ghost { position: absolute; left: 0; top: 0; width: 1px; height: 1px; padding: 0; border: 0; opacity: 0; font-size: 16px; pointer-events: none; }
+.pg-slip { position: absolute; right: 0; bottom: calc(100% + 2px); z-index: 3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; padding: 6px 14px 6px 12px; border-radius: 3px; background: var(--pg-ink); color: var(--pg-on-ink); font-family: var(--pg-mono); font-size: 13px; letter-spacing: 0; white-space: pre; transform: rotate(3deg); box-shadow: 0 8px 16px -8px rgba(0,0,0,.4); animation: pg-slip-in .35s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; }
+.pg-slip::before { content: 'go to '; opacity: .55; }
+.pg-slip::after { content: ''; display: inline-block; width: 7px; height: 14px; margin-left: 2px; vertical-align: -2px; background: currentColor; animation: pg-blink 1s steps(1) infinite; }
+.pg-slip.miss { animation: pg-slip-no .4s ease-in-out; }
+@keyframes pg-slip-in { from { opacity: 0; transform: translateY(8px) rotate(-6deg) scale(.6); } }
+@keyframes pg-slip-no { 25% { transform: translateX(-4px) rotate(3deg); } 75% { transform: translateX(4px) rotate(3deg); } }
+.pg-row.is-dim { opacity: .3; }
+@media (prefers-reduced-motion: reduce) { .pg-slip, .pg-slip::after, .pg-files.is-armed .pg-typehint::before { animation: none; } }
 .pg-row mark { background: var(--pg-point); color: inherit; box-shadow: inset 0 -2px 0 var(--pg-ink); }
 .pg-list-head { display: flex; gap: 24px; padding: 10px 12px; font-size: 12px; font-weight: 500; letter-spacing: 0.04em; color: var(--pg-faint); border-bottom: 1px solid var(--pg-line); line-height: 1.6; }
-.pg-row { display: flex; align-items: center; gap: 24px; padding: 12px; border-radius: 6px; transition: background .15s ease; line-height: 1.5; }
+.pg-row { display: flex; align-items: center; gap: 24px; padding: 12px; border-radius: 6px; transition: background .15s ease, opacity .2s ease; line-height: 1.5; }
 .pg-row.is-cur { background: var(--pg-tint); }
 .pg-row .ttl { font-size: 17px; font-weight: 500; letter-spacing: -0.01em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pg-row .arrow { opacity: 0; transition: opacity .2s ease; }
