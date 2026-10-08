@@ -679,7 +679,6 @@ export function HomeView({ posts, settings }: HomeViewProps) {
               >
                 {yy}
                 <em>.{pad(mm + 1)}</em>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
               </button>
             </h2>
             {picking && (
