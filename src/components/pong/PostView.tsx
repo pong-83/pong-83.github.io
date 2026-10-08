@@ -4,6 +4,7 @@ import { memo, useEffect, useState } from 'react'
 import Link from 'next/link'
 import type { PostSection } from '@/lib/sections'
 import type { PostListItem } from '@/services/notion/types'
+import { FoldToggles } from './FoldToggles'
 
 /**
  * 본문 HTML 을 한 번만 그려요.
@@ -182,6 +183,7 @@ export function PostView({
           </aside>
         )}
 
+        <FoldToggles />
         <article className="pg-article">
           {sections.length > 0 && (
             <details className="pg-toc-m">
