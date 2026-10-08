@@ -239,6 +239,18 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         continue-on-error: true
 
+      # 바로 전 배포가 아직 끝나지 않았으면 GitHub이 새 배포를 거절해요. 조금 기다렸다 한 번 더 올려요
+      - name: Wait for previous deployment
+        if: github.ref == 'refs/heads/main' && steps.deployment.outcome == 'failure'
+        run: sleep 90
+
+      - name: Deploy to Pages (retry)
+        id: deployment_retry
+        if: github.ref == 'refs/heads/main' && steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       # ============================================
       # DEBUG LOGS (ALWAYS ON FAILURE)
       # ============================================
@@ -263,6 +275,6 @@ jobs:
           echo "=== WORKFLOW SUMMARY ==="
           echo "Branch: ${{ github.ref_name }}"
           echo "Job status: ${{ job.status }}"
-          echo "Deployment: ${{ steps.deployment.outcome }}"
+          echo "Deployment: ${{ steps.deployment.outcome }} (retry: ${{ steps.deployment_retry.outcome }})"
           echo "Event: ${{ github.event_name }}"
 
