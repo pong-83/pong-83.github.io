@@ -456,7 +456,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
           </div>
           <div className="pg-note" aria-hidden="true">
             <span>open a folder</span>
-            <svg width="90" height="54" viewBox="0 0 90 54" fill="none" stroke="#111111" strokeWidth="1.4" strokeLinecap="round">
+            <svg width="90" height="54" viewBox="0 0 90 54" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
               <path d="M70 4 C 78 24, 58 40, 14 44" />
               <path d="M24 36 L 13 44 L 24 51" />
             </svg>
