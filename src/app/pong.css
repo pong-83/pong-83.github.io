@@ -224,7 +224,7 @@ html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
 .pg-flab { padding: 1px 9px; font-size: 15px; font-weight: 500; color: var(--pg-sub); line-height: 1.5; }
 .pg-flab.on { display: inline-flex; align-items: center; border: 1px solid var(--pg-ink); background: var(--pg-paper); padding: 0 8px; color: var(--pg-ink); }
 .pg-flab.on > span:first-child { background: var(--pg-sel); }
-.pg-note { position: absolute; left: 112px; top: 2px; display: flex; align-items: flex-start; gap: 2px; transform: rotate(-4deg); transform-origin: 0 100%; pointer-events: none; white-space: nowrap; }
+.pg-note { position: absolute; right: 24px; top: 2px; display: flex; align-items: flex-start; gap: 2px; transform: rotate(-4deg); transform-origin: 100% 100%; pointer-events: none; white-space: nowrap; }
 .pg-note svg { flex: none; margin-top: 8px; }
 .pg-note span { font-family: var(--pg-serif); font-style: italic; font-size: 30px; line-height: 1; }
 
