@@ -11,6 +11,7 @@ import { addIdsToHeadings } from '@/lib/toc'
 import { ImageZoomModal } from '@/components/ImageZoomModal'
 import { KatexRenderer } from '@/components/KatexRenderer'
 import CodeHighlight from '@/components/CodeHighlight'
+import { FoldToggles } from '@/components/pong/FoldToggles'
 import type { Metadata } from 'next'
 
 export const revalidate = 600 // ISR 10분
@@ -79,6 +80,9 @@ export default async function AboutPage() {
             dangerouslySetInnerHTML={{ __html: contentWithIds }}
           />
         </article>
+
+        {/* 접힌 종이를 닫을 때도 한 줄씩 접혀요 */}
+        <FoldToggles />
 
         {/* 이미지 확대 모달 */}
         <ImageZoomModal />

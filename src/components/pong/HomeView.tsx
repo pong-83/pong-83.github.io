@@ -454,12 +454,13 @@ export function HomeView({ posts, settings }: HomeViewProps) {
               <span className="pg-flab">Search</span>
             )}
           </div>
+          {/* 첫 폴더(All) 위에 붙어 있어서, 폴더가 많아져도 다른 폴더와 겹치지 않아요 */}
           <div className="pg-note" aria-hidden="true">
-            <span>open a folder</span>
-            <svg width="90" height="54" viewBox="0 0 90 54" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round">
-              <path d="M70 4 C 78 24, 58 40, 14 44" />
-              <path d="M24 36 L 13 44 L 24 51" />
+            <svg width="64" height="46" viewBox="0 0 64 46" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M60 10 C 40 6, 18 14, 10 38" />
+              <path d="M4 30 L 10 39 L 18 32" />
             </svg>
+            <span>open a folder</span>
           </div>
         </div>
 
