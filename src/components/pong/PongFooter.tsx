@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Star } from './Star'
@@ -64,7 +63,7 @@ export function PongFooter({ name }: { name: string }) {
         </span>
         <NightWindow />
         <span style={{ display: 'flex', gap: 24 }}>
-          <Link href="/" className="pg-ul">HOME</Link>
+          <a href="#top" className="pg-ul">TOP ↑</a>
         </span>
       </div>
     </footer>
