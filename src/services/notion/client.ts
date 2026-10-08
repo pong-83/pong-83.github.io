@@ -225,7 +225,7 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
         profileImage: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ''}/images/profile.svg`,
         jobTitle: '프로필 설정 DB의 JobTitle 속성을 설정하세요',
         bio: '프로필 설정 DB의 Bio 속성을 설정하세요',
-        homeTitle: '프로필 설정 DB의 HomeTitle 속성을 설정하세요',
+        homeTitle: '', // 비워 두면 홈 제목은 이름 + config/pong.ts 의 TITLE_SUFFIX
         homeDescription: '프로필 설정 DB의 HomeDescription 속성을 설정하세요',
         socialLinks: {
           kakaoChannel: '',

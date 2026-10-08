@@ -793,7 +793,7 @@ describe('createNotionClient', () => {
 
       expect(settings.name).toBe('프로필 설정 DB의 Name 속성을 설정하세요')
       expect(settings.jobTitle).toBe('프로필 설정 DB의 JobTitle 속성을 설정하세요')
-      expect(settings.homeTitle).toBe('프로필 설정 DB의 HomeTitle 속성을 설정하세요')
+      expect(settings.homeTitle).toBe('')
       expect(settings.socialLinks).toBeDefined()
     })
 

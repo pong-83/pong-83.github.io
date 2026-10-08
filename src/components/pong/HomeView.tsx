@@ -37,6 +37,10 @@ const FOLDER_COLORS = [
   { front: '#2B2B2B', back: '#111111' },
 ]
 
+/** 사진 없는 글의 미리보기: 퐁 원본 그림 배경색과 같은 색을 깔아서 이어져 보이게 해요 */
+const PONG_COVERS = ['/images/pong-wave.png', '/images/pong-stand.png']
+const PONG_COVER_BG = '#E8E6E5'
+
 const FIND_IDLE_MS = 2000 // 이만큼 안 치면 'go to' 쪽지가 사라져요
 
 const pad = (n: number) => (n < 10 ? `0${n}` : `${n}`)
@@ -126,6 +130,13 @@ const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하�
 
 export function HomeView({ posts, settings }: HomeViewProps) {
   const name = settings.name || 'pong'
+  // 홈 큰 제목: 노션 HomeTitle이 있으면 그걸 쓰고 마지막 낱말을 기울여요 (pong page → pong *page*)
+  const heading = (() => {
+    const t = settings.homeTitle?.trim()
+    if (!t) return [name, TITLE_SUFFIX]
+    const i = t.lastIndexOf(' ')
+    return i > 0 ? [t.slice(0, i), t.slice(i + 1)] : [t, '']
+  })()
   const typed = useTypewriter(NOW_PHRASES)
 
   // 노션 Label 값으로 폴더를 만듦 (글이 많은 라벨이 앞)
@@ -232,6 +243,35 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   const md = new Date(latest.getFullYear(), latest.getMonth() + monthOff, 1)
   const yy = md.getFullYear()
   const mm = md.getMonth()
+  // 달 고르기: 제목(2026.10)을 누르면 열두 달이 펼쳐지고, 글이 있는 달에는 글 수가 붙어요
+  const [picking, setPicking] = useState(false)
+  const [pickYear, setPickYear] = useState(yy)
+  const pickRef = useRef<HTMLDivElement>(null)
+  const monthCount = useMemo(() => {
+    const c = new Map<string, number>()
+    posts.forEach((p) => {
+      const d = parseDate(p.date)
+      if (d) c.set(`${d.getFullYear()}-${d.getMonth()}`, (c.get(`${d.getFullYear()}-${d.getMonth()}`) || 0) + 1)
+    })
+    return c
+  }, [posts])
+  const goMonth = (y: number, m: number) => {
+    setMonthOff((y - latest.getFullYear()) * 12 + (m - latest.getMonth()))
+    setPicking(false)
+  }
+  useEffect(() => {
+    if (!picking) return
+    const onDown = (e: PointerEvent) => {
+      if (!pickRef.current?.contains(e.target as Node)) setPicking(false)
+    }
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPicking(false)
+    window.addEventListener('pointerdown', onDown)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('pointerdown', onDown)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [picking])
   const first = md.getDay()
   const dim = new Date(yy, mm + 1, 0).getDate()
   const prevDim = new Date(yy, mm, 0).getDate()
@@ -361,8 +401,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
           </div>
           <div id="about" style={{ scrollMarginTop: 32, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 10 }}>
             <h1 className="pg-name">
-              {name}
-              {TITLE_SUFFIX && <> <em>{TITLE_SUFFIX}</em></>}
+              {heading[0]}
+              {heading[1] && <> <em>{heading[1]}</em></>}
             </h1>
             {settings.jobTitle && (
               <span className="pg-rename">
@@ -598,12 +638,16 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                 <span className="corner" />
                 <div
                   className="cover"
-                  style={{ background: cur ? colorOf(cur.label) : '#E9E9E6', color: cur?.label && colorOf(cur.label) === '#2B2B2B' ? '#fff' : '#111' }}
+                  style={{ background: cur?.coverImageUrl ? colorOf(cur.label) : PONG_COVER_BG, color: cur?.label && colorOf(cur.label) === '#2B2B2B' ? '#fff' : '#111' }}
                 >
                   {cur?.coverImageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={cur.coverImageUrl} alt="" referrerPolicy="no-referrer" />
-                  ) : null}
+                  ) : (
+                    // 사진이 없는 글은 퐁이 대신 나와요. 글마다 손 흔들기/서 있기를 번갈아 써요
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img key={cur?.slug} className="pg-cover-pong" src={PONG_COVERS[(cur ? posts.indexOf(cur) : 0) % PONG_COVERS.length]} alt="" />
+                  )}
                   {cur && <span className="pg-no">{curNo}</span>}
                 </div>
                 <span style={{ fontSize: 15, fontWeight: 600, letterSpacing: '-0.01em' }}>{cur ? cur.title : '새 글을 기다리는 중'}</span>
@@ -619,10 +663,59 @@ export function HomeView({ posts, settings }: HomeViewProps) {
 
       <section id="calendar" className="pg-wrap pg-cal">
         <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
-          <h2 className="pg-cal-h">
-            {yy}
-            <em>.{pad(mm + 1)}</em>
-          </h2>
+          <div ref={pickRef} style={{ position: 'relative' }}>
+            <h2 className="pg-cal-h">
+              <button
+                type="button"
+                className="pg-cal-pick"
+                aria-expanded={picking}
+                aria-label={`${yy}년 ${mm + 1}월, 다른 달 고르기`}
+                onClick={() => {
+                  setPickYear(yy)
+                  setPicking((v) => !v)
+                }}
+              >
+                {yy}
+                <em>.{pad(mm + 1)}</em>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+              </button>
+            </h2>
+            {picking && (
+              <div className="pg-months" role="dialog" aria-label="달 고르기">
+                <div className="pg-months-y">
+                  <button type="button" className="pg-arrow" aria-label="이전 해" onClick={() => setPickYear((y) => y - 1)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6" /></svg>
+                  </button>
+                  <span>{pickYear}</span>
+                  <button type="button" className="pg-arrow" aria-label="다음 해" onClick={() => setPickYear((y) => y + 1)}>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M9 6l6 6-6 6" /></svg>
+                  </button>
+                </div>
+                <div className="pg-months-grid">
+                  {Array.from({ length: 12 }, (_, m) => {
+                    const n = monthCount.get(`${pickYear}-${m}`) || 0
+                    const on = pickYear === yy && m === mm
+                    return (
+                      <button
+                        key={m}
+                        type="button"
+                        className={`pg-month${on ? ' on' : ''}${n ? ' has' : ''}`}
+                        aria-current={on ? 'date' : undefined}
+                        aria-label={`${pickYear}년 ${m + 1}월${n ? `, 글 ${n}개` : ''}`}
+                        onClick={() => goMonth(pickYear, m)}
+                      >
+                        {pad(m + 1)}
+                        {n > 0 && <i>{n}</i>}
+                      </button>
+                    )
+                  })}
+                </div>
+                <button type="button" className="pg-months-latest" onClick={() => goMonth(latest.getFullYear(), latest.getMonth())}>
+                  최근 글이 있는 달 →
+                </button>
+              </div>
+            )}
+          </div>
           <button type="button" className="pg-arrow" aria-label="이전 달" onClick={() => setMonthOff((m) => m - 1)}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 6l-6 6 6 6" /></svg>
           </button>
