@@ -279,9 +279,9 @@ html.dark .pg-egg-run::after { background: rgba(255,255,255,.14); }
 .pg-arrow { width: 44px; height: 44px; border: 0; background: transparent; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; color: var(--pg-ink); }
 /* 달 고르기: 제목을 누르면 종이 한 장에 열두 달이 펼쳐져요 */
 .pg-cal-pick { display: inline-flex; align-items: baseline; gap: 0; padding: 0; border: 0; background: none; font: inherit; letter-spacing: inherit; color: inherit; cursor: pointer; }
-.pg-cal-pick svg { align-self: center; margin-left: 8px; transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
-.pg-cal-pick:hover svg { transform: translateY(2px); }
-.pg-cal-pick[aria-expanded='true'] svg { transform: rotate(180deg); }
+/* 화살표 없이, 올리면 밑줄이 생겨서 누를 수 있는 걸 알려 줘요 */
+.pg-cal-pick { text-decoration: underline transparent; text-decoration-thickness: 2px; text-underline-offset: 8px; transition: text-decoration-color .2s ease; }
+.pg-cal-pick:hover, .pg-cal-pick:focus-visible, .pg-cal-pick[aria-expanded='true'] { text-decoration-color: currentColor; }
 .pg-months { position: absolute; left: 0; top: calc(100% + 12px); z-index: 5; width: 280px; padding: 12px 14px 14px; background: var(--pg-paper); color: var(--pg-ink); border-radius: 10px; box-shadow: 0 1px 2px rgba(17,17,17,.12), 0 16px 40px rgba(17,17,17,.14); transform-origin: 24px 0; animation: pg-months-in .32s cubic-bezier(.3,1.4,.5,1) both; }
 @keyframes pg-months-in { from { opacity: 0; transform: translateY(-6px) rotate(-2deg) scale(.96); } }
 .pg-months-y { display: flex; align-items: center; justify-content: space-between; font-size: 17px; font-weight: 600; font-variant-numeric: tabular-nums; }
