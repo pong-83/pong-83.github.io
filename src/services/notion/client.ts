@@ -284,6 +284,14 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
             const bio = props['Bio']?.rich_text ? getPlainText(props['Bio'].rich_text) : defaultSettings.bio;
             const homeTitle = props['HomeTitle']?.rich_text ? getPlainText(props['HomeTitle'].rich_text) : defaultSettings.homeTitle;
             const homeDescription = props['HomeDescription']?.rich_text ? getPlainText(props['HomeDescription'].rich_text) : defaultSettings.homeDescription;
+            // 여러 문구를 한 칸에: 줄바꿈이나 | 로 나눠요. 스티커 안에서 줄을 바꾸려면 ' / '
+            const phrases = (key: string) => {
+              const raw = props[key]?.rich_text ? getPlainText(props[key].rich_text) : ''
+              const list = raw.split(/\n|\|/).map((x) => x.trim()).filter(Boolean)
+              return list.length ? list : undefined
+            }
+            const nowPhrases = phrases('NowPhrases')
+            const stickers = phrases('Stickers')?.map((x) => x.replace(/\s+\/\s+/g, '\n'))
 
             // 소셜 링크 파싱
             const emailValue = props['Email']?.email ?? (props['Email']?.rich_text ? getPlainText(props['Email'].rich_text) : defaultSettings.socialLinks.email);
@@ -312,6 +320,8 @@ export function createNotionClient(override?: { notion?: Client; databaseId?: st
               bio,
               homeTitle,
               homeDescription,
+              nowPhrases,
+              stickers,
               socialLinks,
             };
           } catch (error: unknown) {

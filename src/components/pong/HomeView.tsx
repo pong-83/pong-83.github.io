@@ -112,7 +112,7 @@ interface HomeViewProps {
   settings: SiteSettings
 }
 
-// 사진에 마우스를 올릴 때마다 차례로 바뀌는 스티커 문구 ({name}은 이름으로 바뀜)
+// 사진에 마우스를 올릴 때마다 차례로 바뀌는 스티커 문구 ({name}은 이름으로 바뀜). 노션 Stickers 칸이 비어 있을 때 써요
 const STICKERS = [
   'Hi, I’m {name}',
   'Hi, I’m {name}',
@@ -123,7 +123,7 @@ const STICKERS = [
   '{name} was here',
   '★ +1 HP',
 ]
-const STICKER_COUNT = STICKERS.length
+const STICKER_STYLES = 8 // .pg-hi.s0 ~ s7 모양을 문구 순서대로 돌려 써요
 const STICKER_FADE_MS = 350 // .pg-hi 가 사라지는 시간(.3s)보다 조금 길게
 // 이메일을 누를 때마다 돌아가며 뜨는 말
 const COPIED_LINES = ['주머니에 쏙 넣었어요 ✉', '붙여넣기만 하면 돼요 ⌘V', '편지 기다릴게요 ☺']
@@ -137,7 +137,9 @@ export function HomeView({ posts, settings }: HomeViewProps) {
     const i = t.lastIndexOf(' ')
     return i > 0 ? [t.slice(0, i), t.slice(i + 1)] : [t, '']
   })()
-  const typed = useTypewriter(NOW_PHRASES)
+  const nowPhrases = settings.nowPhrases?.length ? settings.nowPhrases : NOW_PHRASES
+  const stickers = settings.stickers?.length ? settings.stickers : STICKERS
+  const typed = useTypewriter(nowPhrases)
 
   // 노션 Label 값으로 폴더를 만듦 (글이 많은 라벨이 앞)
   const folders = useMemo(() => {
@@ -299,7 +301,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
   // 사진에 마우스를 올릴 때마다 스티커 모양이 바뀜
   const [sticker, setSticker] = useState(0)
   const [tapped, setTapped] = useState(false)
-  const nextSticker = () => setSticker((n) => (n + 1) % STICKER_COUNT)
+  const nextSticker = () => setSticker((n) => (n + 1) % stickers.length)
   const stickerTimer = useRef(0)
   useEffect(() => () => window.clearTimeout(stickerTimer.current), [])
   const hasPhoto = Boolean(settings.profileImage) && !photoFailed
@@ -392,8 +394,8 @@ export function HomeView({ posts, settings }: HomeViewProps) {
                 </>
               )}
             </div>
-            <span className={`pg-hi s${sticker}`} aria-hidden="true">
-              {STICKERS[sticker]
+            <span className={`pg-hi s${sticker % STICKER_STYLES}`} aria-hidden="true">
+              {stickers[sticker % stickers.length]
                 .replace('{name}', name)
                 .split('\n')
                 .map((line, i) => (i === 0 ? <b key={i}>{line}</b> : <span key={i}>{line}</span>))}
@@ -452,7 +454,7 @@ export function HomeView({ posts, settings }: HomeViewProps) {
               </span>
             </div>
           )}
-          {NOW_PHRASES.length > 0 && (
+          {nowPhrases.length > 0 && (
             <div>
               <span className="pg-label">NOW</span>
               <span aria-live="off" style={{ minHeight: '1.6em' }}>
