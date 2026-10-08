@@ -37,8 +37,24 @@ export function FoldToggles() {
         rows.forEach((row) => row.style.removeProperty('animation'))
       }, SHUT_MS + (rows.length - 1) * SHUT_GAP + 20)
     }
+    // 열 때마다 펼침 애니메이션을 처음부터 다시 틀어요. 브라우저가 닫힌 내용의 애니메이션을 미리 끝내 두는 경우가 있어요
+    const onToggle = (e: Event) => {
+      const details = e.target
+      if (!(details instanceof HTMLDetailsElement) || !details.open) return
+      if (!details.matches('.pg-article details.toggle-heading-block')) return
+      details.querySelectorAll<HTMLElement>(':scope > .toggle-content > *, :scope > .toggle-content > :is(ul, ol) > li').forEach((row) => {
+        row.getAnimations().forEach((a) => {
+          a.cancel()
+          a.play()
+        })
+      })
+    }
     document.addEventListener('click', onClick)
-    return () => document.removeEventListener('click', onClick)
+    document.addEventListener('toggle', onToggle, true)
+    return () => {
+      document.removeEventListener('click', onClick)
+      document.removeEventListener('toggle', onToggle, true)
+    }
   }, [])
   return null
 }
