@@ -22,6 +22,9 @@ export const revalidate = 600 // ISR 10분
 // 모든 페이지는 빌드 시점에 generateStaticParams를 통해 생성됨
 export const dynamicParams = false
 
+// 공개 글이 없을 때만 쓰는 자리표시 주소 (페이지는 404로 그려짐)
+const EMPTY_PLACEHOLDER_SLUG = '__no-posts__'
+
 // 페이지 Props 타입 정의
 interface PostPageProps {
   params: Promise<{ slug: string }>
@@ -31,6 +34,9 @@ interface PostPageProps {
 export async function generateStaticParams() {
   try {
     const posts = await listPublishedPostsMemo()
+    // 공개 글이 하나도 없으면(모든 글을 Draft로 돌린 경우) 빈 배열을 돌려주면
+    // static export 빌드가 실패해서 예전 사이트가 그대로 남아요. 404로 그려지는 자리표시 주소를 하나 넣어요
+    if (posts.length === 0) return [{ slug: EMPTY_PLACEHOLDER_SLUG }]
     return posts.map((post) => ({
       slug: post.slug,
     }))
